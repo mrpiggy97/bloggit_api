@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-LOCAL_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -48,9 +48,17 @@ THIRD_PARTY_APPS = [
     'rest_auth.registration',
     'allauth',
     'allauth.account',
+    'rest_framework_swagger',
+    'taggit',
+    'PIL',
 ]
 
-INSTALLED_APPS = LOCAL_APPS+THIRD_PARTY_APPS
+LOCAL_APPS = [
+    'users_app.apps.UsersAppConfig',
+    'posts_app.apps.PostsAppConfig'
+]
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:8000',
@@ -217,3 +225,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 SITE_ID = 1
+
+MEDIA_URL = '/media/pics/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, '/media/pics/')
