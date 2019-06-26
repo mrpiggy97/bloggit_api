@@ -39,7 +39,7 @@ class Sub(models.Model):
         return DateFormat(self.cake_day).format("M d, Y")
     
     @property
-    def get_communities(self):
+    def get_communities_as_list(self):
         return [com.slug for com in self.communities.all()]
     
     @property
