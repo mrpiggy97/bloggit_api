@@ -22,6 +22,6 @@ schema_view = get_swagger_view(title='bloggit API')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('rest-auth/', include('rest_auth.urls')),
-    path('rest-auth-register/', include('rest_auth.registration.urls')),
+    path('rest-auth/registration/', include('rest_auth.registration.urls')),
     path('api-docs', schema_view),
 ]
