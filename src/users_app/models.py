@@ -29,7 +29,7 @@ class Sub(models.Model):
     
     @property
     def get_profile_pic(self):
-        if self.profile_pic:
+        if self.profile_pic and hasattr(self.profile_pic, 'url'):
             return self.profile_pic.url
         else:
             return None
@@ -47,37 +47,37 @@ class Sub(models.Model):
         return str(self.uuid)
     
     @property
-    def liked_posts_as_json(self):
+    def liked_posts_as_list(self):
         return json.loads(self.liked_posts)
     
-    @liked_posts_as_json.setter
+    @liked_posts_as_list.setter
     def liked_posts_as_json(self, uuid_list):
         self.liked_posts = json.dumps(uuid_list)
         self.save()
     
     @property
-    def liked_comments_as_json(self):
+    def liked_comments_as_list(self):
         return json.loads(self.liked_comments)
     
-    @liked_comments_as_json.setter
+    @liked_comments_as_list.setter
     def liked_comments_as_json(self, uuid_list):
         self.liked_comments_as_json = json.dumps(uuid_list)
         self.save()
     
     @property
-    def reported_posts_as_json(self):
+    def reported_posts_as_list(self):
         return json.loads(self.reported_posts)
     
-    @reported_posts_as_json.setter
+    @reported_posts_as_list.setter
     def reported_posts_as_json(self, uuid_list):
         self.reported_posts = json.dumps(uuid_list)
         self.save()
     
     @property
-    def reported_comments_as_json(self):
+    def reported_comments_as_list(self):
         return json.loads(self.reported_comments)
     
-    @reported_comments_as_json.setter
+    @reported_comments_as_list.setter
     def reported_comments_as_json(self, uuid_list):
         self.reported_comments = json.dumps(uuid_list)
         self.save()
