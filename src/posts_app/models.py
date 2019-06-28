@@ -3,8 +3,6 @@
 from django.db import models
 from django.utils.dateformat import DateFormat
 
-from .serializers import CommentSerializer
-
 from users_app.models import Sub
 
 from taggit.managers import TaggableManager
@@ -24,6 +22,10 @@ class Post(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     likes = models.IntegerField(default=1)
     reports = models.IntegerField(default=0)
+
+    @property
+    def get_communities_as_list(self):
+        return [com.slug for com in self.communities.all()]
 
     @property
     def get_username(self):
@@ -46,8 +48,8 @@ class Post(models.Model):
         return DateFormat(self.date_posted).format("M d, Y")
     
     @property
-    def get_communities_as_list(self):
-        return [com.slug for com in self.communities.slug]
+    def get_uuid_as_string(self):
+        return str(self.uuid)
     
     def __str__(self):
         return self.title[0:50]
@@ -61,26 +63,11 @@ class CommentFeed(models.Model):
     
     @property
     def get_post_uuid(self):
-        return self.post.uuid
+        return self.post.get_uuid_as_string
     
-    def get_original_comment_serialized(self, session_sub):
-
-        try:
-            original_comment = Comment.objects.get(commentfeed=self, is_original=True)
-        except Comment.DoesNotExist:
-            original_comment = None
-            return None
-        else:
-            context = {'session_sub': session_sub}
-            serialized_comment = CommentSerializer(original_comment, context=context)
-            return serialized_comment.data
-    
-    def get_children_comments_serialized(self, session_sub):
-
-        comments = Comment.objects.filter(commentfeed=self, is_original=False)
-        context = {'session_sub': session_sub}
-        serialized_comments = CommentSerializer(comments, context=context, multiple=True)
-        return serialized_comments.data
+    @property
+    def get_uuid_as_string(self):
+        return str(self.uuid)
 
     def __str__(self):
         return "comment feed for %s" %(self.post.get_uuid_as_string)
@@ -100,6 +87,10 @@ class Comment(models.Model):
     date_posted = models.DateTimeField(auto_now_add=True)
     likes = models.IntegerField(default=1)
     reports = models.IntegerField(default=0)
+
+    @property
+    def get_commentfeed_uuid(self):
+        return self.commentfeed.get_uuid_as_string
     
     @property
     def get_username(self):
@@ -116,24 +107,30 @@ class Comment(models.Model):
             return None
     
     @property
-    def get_date_posted(self):
-        return DateFormat(self.date_posted).format("M d, Y")
-    
-    @property
     def get_parent_comment(self):
-        if self.has_parent:
+        
+        if self.has_parent == True:
             if self.parent_comment:
                 return {
+                    'title': self.parent_comment.title,
+                    'text': self.parent_comment.text,
                     'username': self.parent_comment.get_username,
                     'date': self.parent_comment.get_date_posted,
-                    'text': self.parent_comment.text
+                    'uuid': self.parent_comment.get_uuid_as_string
                 }
             
             else:
                 return "[deleted]"
-        
         else:
             return None
+    
+    @property
+    def get_uuid_as_string(self):
+        return str(self.uuid)
+    
+    @property
+    def get_date_posted(self):
+        return DateFormat(self.date_posted).format("M d, Y")
 
     def __str__(self):
         return self.text[0:50]
