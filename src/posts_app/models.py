@@ -28,11 +28,17 @@ class Post(models.Model):
         return [com.slug for com in self.communities.all()]
 
     @property
-    def get_username(self):
+    def get_owner_info(self):
         if self.owner:
-            return self.owner.user.username
+            return {
+                'username': self.owner.user.username,
+                'uuid': self.owner.get_uuid_as_string
+            }
         else:
-            return "[deleted]"
+            return {
+                'username': "[deleted]",
+                'uuid': None
+            }
     
     @property
     def get_pic(self):
@@ -93,11 +99,17 @@ class Comment(models.Model):
         return self.commentfeed.get_uuid_as_string
     
     @property
-    def get_username(self):
+    def get_owner_info(self):
         if self.owner:
-            return self.owner.user.username
+            return {
+                'username': self.owner.user.username,
+                'uuid': self.owner.get_uuid_as_string
+            }
         else:
-            return "[deleted]"
+            return {
+                'username': "[deleted]",
+                'uuid': None
+            }
     
     @property
     def get_pic(self):
@@ -120,7 +132,7 @@ class Comment(models.Model):
                 }
             
             else:
-                return "[deleted]"
+                return None
         else:
             return None
     
