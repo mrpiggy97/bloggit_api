@@ -74,6 +74,19 @@ class CommentFeed(models.Model):
     @property
     def get_uuid_as_string(self):
         return str(self.uuid)
+    
+    @property
+    def get_original_comment(self):
+        #return the original comment, there should only be on per CommentFeed
+
+        return Comment.objects.get(commentfeed=self, is_original=True)
+
+    @property
+    def get_children_comments(self):
+        #return all comments that have is_original is False
+        
+        return Comment.objects.filter(commentfeed=self, is_original=False).order_by('-id')
+
 
     def __str__(self):
         return "comment feed for %s" %(self.post.get_uuid_as_string)
