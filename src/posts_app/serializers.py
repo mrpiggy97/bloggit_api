@@ -24,6 +24,12 @@ class PostSerializer(serializers.ModelSerializer):
     add_communities = serializers.ListField(allow_null=True,
                                             default=None, write_only=True)
 
+    class Meta:
+        model = Post
+        fields = ['communities_list', 'owner', 'pic', 'date', 'uuid',
+                    'liked', 'reported', 'owner_uuid', 'add_communities',
+                    'title', 'text', 'text', 'likes', 'reports']
+
     def get_liked(self, obj):
         if self.context:
             session_sub = self.context['session_sub']
@@ -45,13 +51,6 @@ class PostSerializer(serializers.ModelSerializer):
                 return False
         else:
             return None
-    
-
-    class Meta:
-        model = Post
-        fields = ['communities_list', 'owner', 'pic', 'date', 'uuid',
-                    'liked', 'reported', 'owner_uuid', 'add_communities',
-                    'title', 'text', 'text', 'likes', 'reports']
     
 
     def create(self, validated_data):
@@ -85,6 +84,64 @@ class PostSerializer(serializers.ModelSerializer):
             return None
 
 
+class CommentFeedSerializer(serializers.ModelSerializer):
+    '''serializer for CommentFeed model'''
+
+    uuid = serializers.CharField(source="get_uuid_as_string", read_only=True)
+    original_comment = serializers.SerializerMethodField()
+    children_comments = serializers.SerializerMethodField()
+
+    post_uuid = serializers.CharField(write_only=True)
+
+
+    class Meta:
+        model = CommentFeed
+        fields = ['uuid', 'post_uuid', 'original_comment', 'children_comments']
+
+    def get_original_comment(self, obj):
+        #there should only be one original_comment per CommentFeed
+
+        comment = obj.get_original_comment
+
+        if self.context:
+            session_sub = self.context['session_sub']
+            context = {'session_sub': session_sub}
+            return CommentSerializer(comment, context=context).data
+        
+        else:
+            return CommentSerializer(comment).data
+    
+    def get_children_comments(self, obj):
+        #get all comments that have is_original is False
+
+        comments = obj.get_children_comments
+
+        if self.context:
+            session_sub = self.context['session_sub']
+            context = {'session_sub': session_sub}
+            return CommentSerializer(comments, context=context, many=True).data
+        
+        else:
+            return CommentSerializer(comments, many=True).data
+    
+    def create(self, validate_data):
+        try:
+            post = Post.objects.get(uuid=validate_data['post_uuid'])
+        
+        except Post.DoesNotExist:
+            return None
+        
+        else:
+            return CommentFeed.objects.create(post=post)
+    
+    def update(self, instance, validate_data):
+        #this serializer does not update data because
+        #updating a CommentFeed object seems useless
+
+        return None
+
+
+
 class CommentSerializer(serializers.ModelSerializer):
     '''serializer for Comment model'''
 
@@ -101,6 +158,12 @@ class CommentSerializer(serializers.ModelSerializer):
     #write only fields
     owner_uuid = serializers.CharField(write_only=True)
     commentfeed_uuid = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['uuid', 'owner', 'pic', 'parent_comment', 'date', 'liked',
+                    'reported', 'owner_uuid', 'commentfeed_uuid', 'text',
+                    'has_parent', 'is_original', 'likes', 'reports']
 
     def get_liked(self, obj):
         '''check if obj uuid is in any Sub model liked_posts'''
@@ -126,13 +189,6 @@ class CommentSerializer(serializers.ModelSerializer):
                 return False
         else:
             return None
-
-    class Meta:
-        model = Comment
-        fields = ['uuid', 'owner', 'pic', 'parent_comment', 'date', 'liked',
-                    'reported', 'owner_uuid', 'commentfeed_uuid', 'text',
-                    'has_parent', 'is_original', 'likes', 'reports']
-    
 
     def create(self, validate_data):
         #owner and commentfeed are foreign key fields
