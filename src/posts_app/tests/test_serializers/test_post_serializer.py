@@ -17,8 +17,8 @@ user_test_data = {
 
 
 class TestPostSerializer(APITestCase):
-    '''test create read and update methods'''
-
+    '''test create read, update methods and '''
+    '''if data provided to serializer will be valid'''
     def setUp(self):
         self.user = User.objects.create_user(
             username=user_test_data['username'],
@@ -69,6 +69,20 @@ class TestPostSerializer(APITestCase):
 
         self.assertEqual(serializer.data, expected_data)
     
+    def test_valid_serializer_data(self):
+        #test if data passed to serializer will be valid
+
+        data = {
+            'owner_uuid': str(self.sub.uuid),
+            'add_communities': ['testing', 'test'],
+            'title': 'this is the title',
+            'text': 'this is the text',
+        }
+
+        serializer = self.serializer(data=data)
+
+        self.assertTrue(serializer.is_valid())
+    
     def test_create_post(self):
         data = {
             'owner_uuid': str(self.sub.uuid),
@@ -79,25 +93,11 @@ class TestPostSerializer(APITestCase):
 
         context = {'session_sub': self.sub}
 
-        serializer = self.serializer(data=data, context=context)
+        serializer = self.serializer()
 
-        #first test if serializer is valid as expected
-        self.assertTrue(serializer.is_valid())
-
-        if serializer.is_valid():
-            serializer.save()
-        
-        test_post = Post.objects.last()
-        test_serializer = self.serializer(test_post, context=context)
-
-        #test if serializer from last post created is
-        #the same as the one that was hopefully created
-        self.assertEqual(serializer.data, test_serializer.data)
-
-        #check that uuid is a string
-        self.assertEqual(str(test_post.uuid), test_serializer.data['uuid'])
+        self.assertIsInstance(serializer.create(data), Post)
     
-    def test_update_post_with_correct_data(self):
+    def test_update_post(self):
         #this block is attempting to create a post successfuly
 
         #this data is expected to work
@@ -107,36 +107,26 @@ class TestPostSerializer(APITestCase):
             'text': 'changed text'
         }
 
-        context = {'session_sub': self.sub}
+        serializer = self.serializer(self.post)
 
-        serializer = self.serializer(self.post, data=data, context=context)
-        self.assertTrue(serializer.is_valid())
+        self.assertIsInstance(serializer.update(self.post, data), Post)
 
-        test_post = Post.objects.first()
-        test_serializer = self.serializer(test_post, context=context)
+        #this block will try to change self.post.owner unsuccessfuly
 
-        self.assertEqual(test_serializer.data, serializer.data)
-
-    def test_udpate_with_wrong_data(self):
-
-        #this will try to update self.post with a different owner
-
-        #first create a new user
-        new_user = User.objects.create(
-            username="usercan'tupdatepost30",
-            password="thisisthepassword22",
-            email="newemail@mail.com"
+        new_user = User.objects._create_user(
+            username="newusertestin",
+            password="newpasswoas222",
+            email="newemail@email.com"
         )
 
         new_sub = Sub.objects.create(user=new_user)
 
-        should_not_work = {
-            'owner_uuid': str(new_sub.uuid),
+        wrong_data = {
             'title': 'should not work',
             'text': 'should not work',
+            'owner_uuid': str(new_sub.uuid)
         }
 
-        serializer = self.serializer(self.post)
+        serializer2 = self.serializer(self.post)
 
-        #check that update method does not return an instance object
-        self.assertIsNone(serializer.update(self.post, should_not_work))
+        self.assertIsNone(serializer2.update(self.post, wrong_data))

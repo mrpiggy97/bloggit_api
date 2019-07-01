@@ -17,7 +17,8 @@ user_test_data = {
 
 
 class TestCommentSerializer(APITestCase):
-    '''test for read create and update in CommentSerializer'''
+    '''test read create update in CommentSerializer'''
+    '''and check that data passed to serialier is valid'''
 
     def setUp(self):
 
@@ -67,33 +68,44 @@ class TestCommentSerializer(APITestCase):
 
         self.assertEqual(serializer.data, expected_data)
     
+
+    def test_valid_data(self):
+        #test if data if valid
+
+        data = {
+            'owner_uuid': str(self.comment.owner.uuid),
+            'commentfeed_uuid': str(self.comment.commentfeed.uuid),
+            'text': 'this is a text',
+        }
+
+        serializer = self.serializer(data=data)
+
+        self.assertTrue(serializer.is_valid())
+    
     def test_create_comment(self):
+        #check that create method works as expected
+
         data = {
             'text': 'this is a comment test',
             'owner_uuid': str(self.sub.uuid),
             'commentfeed_uuid': str(self.commentfeed.uuid),
         }
 
-        serializer = self.serializer(data=data)
+        serializer = self.serializer()
 
-        #first check if serializer is valid as how it is
-        self.assertTrue(serializer.is_valid())
-
-        if serializer.is_valid():
-            serializer.save()
-        
-        test_comment = Comment.objects.last()
-        test_serializer = CommentSerializer(test_comment)
-
-        self.assertEqual(test_serializer.data, serializer.data)
+        self.assertIsInstance(serializer.create(data), Comment)
     
 
-    def test_update_comment_with_correct_data(self):
+    def test_update_comment(self):
 
         #likes and reports are optional fields providing them is not nessesary
         #has_parent and is_original fields don't do anything when updating
         #providing them is not nessesary
-        expected_data = {
+
+        #to test that serializer can't change a comment's commentfeed
+        new_commentfeed = CommentFeed.objects.create(post=self.post)
+
+        data = {
             'text': 'updated comment text',
             'likes': 100,
             'reports': 100,
@@ -101,33 +113,18 @@ class TestCommentSerializer(APITestCase):
             'commentfeed_uuid': str(self.commentfeed.uuid)
         }
 
-        serializer = self.serializer(self.comment, data=expected_data)
-        self.assertTrue(serializer.is_valid())
-
-        if serializer.is_valid():
-            serializer.save()
-
-        test_comment = Comment.objects.first()
-        test_serializer = CommentSerializer(test_comment)
-
-        self.assertEqual(test_serializer.data, serializer.data)
-        self.assertEqual(test_comment.likes, 100)
-    
-    def test_update_with_wrong_data(self):
-        #create a new commentfeed (or a sub it doesn't matter) and try to
-        #use it uuid to update the comment, this should not work
-
-        new_commentfeed = CommentFeed.objects.create(post=self.post)
-
-        should_not_work = {
-            'text': 'should not work',
-            'owner_uuid': str(self.sub.uuid),
-            'commentfeed_uuid': str(new_commentfeed.uuid),
-            'likes': 33 #not necessary to include
+        wrong_data = {
+            'text': 'edit',
+            'likes': 22,
+            'reports': 42,
+            'owner_uuid': str(self.comment.owner.uuid),
+            'commentfeed_uuid': str(new_commentfeed.uuid)
         }
 
         serializer = self.serializer(self.comment)
 
-        #commentfeed_uuid is not the same as the objects original
-        #commentfeed.uuid so .update() should return None
-        self.assertIsNone(serializer.update(self.comment, should_not_work))
+        #this one should not work
+        serializer2 = self.serializer(self.comment)
+
+        self.assertIsInstance(serializer.update(self.comment, data), Comment)
+        self.assertIsNone(serializer2.update(self.comment, wrong_data))
