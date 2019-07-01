@@ -28,7 +28,7 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ['communities_list', 'owner', 'pic', 'date', 'uuid',
                     'liked', 'reported', 'owner_uuid', 'add_communities',
-                    'title', 'text', 'text', 'likes', 'reports']
+                    'title', 'text', 'likes', 'reports']
 
     def get_liked(self, obj):
         if self.context:
@@ -75,7 +75,7 @@ class PostSerializer(serializers.ModelSerializer):
 
         uuid = validated_data.pop('owner_uuid')
 
-        if uuid == str(instance.uuid):
+        if uuid == str(instance.owner.uuid):
             instance.title = validated_data['title']
             instance.text = validated_data['text']
             instance.save()
@@ -201,7 +201,7 @@ class CommentSerializer(serializers.ModelSerializer):
             owner = Sub.objects.get(uuid=owner_uuid)
             commentfeed = CommentFeed.objects.get(uuid=commentfeed_uuid)
 
-            foreign_key_fields = {
+            fk_fields = {
                 'owner': owner,
                 'commentfeed': commentfeed
             }
@@ -210,7 +210,8 @@ class CommentSerializer(serializers.ModelSerializer):
             return None
         
         else:
-            return Comment.objects.create(**validate_data, **foreign_key_fields)
+            comment =  Comment.objects.create(**validate_data, **fk_fields)
+            return comment
     
     def update(self, instance, validate_data):
         #likes and reports dont't need to be provided they are optional
