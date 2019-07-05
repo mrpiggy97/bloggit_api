@@ -1,10 +1,21 @@
-from rest_framework_jwt.authentication import BaseAuthentication
+import jwt
 
-#copied this class from rest_framework_jwt.authentication
-#and changed it so instead of a status code of failed when
-#token has expired it returns none instead
+from django.contrib.auth import get_user_model
+from django.utils.encoding import smart_text
+from django.utils.translation import ugettext as _
+from rest_framework import exceptions
+from rest_framework.authentication import (
+    BaseAuthentication, get_authorization_header
+)
 
-class BaseJSONWebTokenAuthentication(BaseAuthentication):
+from rest_framework_jwt.settings import api_settings
+
+
+jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
+jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
+
+
+class CustomBaseJSONWebTokenAuthentication(BaseAuthentication):
     """
     Token based authentication using the JSON Web Token standard.
     """
@@ -21,8 +32,7 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
         try:
             payload = jwt_decode_handler(jwt_value)
         except jwt.ExpiredSignature:
-            #this is the only change made
-            raise None
+            return None
         except jwt.DecodeError:
             msg = _('Error decoding signature.')
             raise exceptions.AuthenticationFailed(msg)
@@ -57,7 +67,7 @@ class BaseJSONWebTokenAuthentication(BaseAuthentication):
         return user
 
 
-class CustomJsonWebTokenAuthentication(CustomJsonWebTokenAuthentication):
+class CustomJSONWebTokenAuthentication(CustomBaseJSONWebTokenAuthentication):
     """
     Clients should authenticate by passing the token key in the "Authorization"
     HTTP header, prepended with the string specified in the setting
