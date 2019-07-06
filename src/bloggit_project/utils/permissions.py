@@ -14,7 +14,6 @@ class ReadOrOwnerOnly(permissions.BasePermission):
     
     def has_object_permission(self, request, view, obj):
         if request.method not in permissions.SAFE_METHODS:
-            print(request.user)
             return obj.owner.user.username == request.user.username
         
         elif request.method in permissions.SAFE_METHODS:
