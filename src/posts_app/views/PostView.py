@@ -29,11 +29,9 @@ class PostView(APIView):
             post = Post.objects.get(uuid=uuid)
         
         except Post.DoesNotExist:
-            print("guck")
             return Response(data="shit", status=status.HTTP_404_NOT_FOUND)
         
         else:
-            print(post.owner.user.username, self.request.user.username)
             self.check_object_permissions(self.request, post)
             return post
     
@@ -68,4 +66,24 @@ class PostView(APIView):
             json_data = json.dumps(serializer.data)
             return Response(data=json_data, status=status.HTTP_200_OK)
         else:
+            return Response(data=None, status=status.HTTP_304_NOT_MODIFIED)
+    
+    def post(self, request, *args, **kwargs):
+
+        data = json.loads(request.data)
+        context = self.get_serializer_context()
+        serializer = self.serializer(data=data, context=context)
+        
+        if serializer.is_valid():
+            serializer.save()
+            response_data = json.dumps(serializer.data)
+            return Response(data=response_data,
+                            status=status.HTTP_201_CREATED,
+                            content_type='json')
+        else:
             return Response(data=None, status=status.HTTP_501_NOT_IMPLEMENTED)
+    
+    def delete(self, request, *args, **kwargs):
+        post = self.get_object()
+        post.delete()
+        return Response(data=None, status=status.HTTP_200_OK)
