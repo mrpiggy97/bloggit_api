@@ -81,11 +81,16 @@ class TestPostSerializer(APITestCase):
         self.assertTrue(serializer.is_valid())
     
     def test_create_post(self):
+        #this data is supposed to reprent validated_data in serializer
+        #create method now we are testing if update method will return a post
+        #object, remove_communities doesn't need to be provided but becasuse
+        #we are testing update method directly we need to pass it
         data = {
             'owner_uuid': str(self.sub.uuid),
             'title': 'this is a title',
             'text': 'this is the text',
             'add_communities': ['title', 'test', 'third tag'],
+            'remove_communities': None
         }
 
         context = {'session_sub': self.sub}
@@ -97,11 +102,14 @@ class TestPostSerializer(APITestCase):
     def test_update_post(self):
         #this block is attempting to create a post successfuly
 
-        #this data is expected to work
+        #this data is expected to work, it is supposed to represent validated
+        #data
         data = {
             'owner_uuid': str(self.post.owner.uuid),
             'title': 'changed title',
-            'text': 'changed text'
+            'text': 'changed text',
+            'add_communities': None,
+            'remove_communities': ['test']
         }
 
         serializer = self.serializer(self.post)
@@ -121,7 +129,9 @@ class TestPostSerializer(APITestCase):
         wrong_data = {
             'title': 'should not work',
             'text': 'should not work',
-            'owner_uuid': str(new_sub.uuid)
+            'owner_uuid': str(new_sub.uuid),
+            'add_communities': None,
+            'remove_communities': None
         }
 
         serializer2 = self.serializer(self.post)
