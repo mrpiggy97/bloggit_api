@@ -58,11 +58,13 @@ class PostSerializer(serializers.ModelSerializer):
     
 
     def create(self, validated_data):
-        #try to get Sub from uuid given in validate_data
+
         del validated_data['remove_communities']
+        communities = validated_data.pop('add_communities')
+        
+        #try to get sub from uuid goven in validated_data
         try:
             owner = Sub.objects.get(uuid=validated_data.pop('owner_uuid'))
-            communities = validated_data.pop('add_communities')
         #if no sub has that uuid return None
         except Sub.DoesNotExist:
             return None
