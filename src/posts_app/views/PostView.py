@@ -51,8 +51,11 @@ class PostView(APIView):
         post = self.get_object()
         context = self.get_serializer_context()
         data = self.serializer(post, context=context).data
+        json_data = json.dumps(data)
 
-        return Response(data=json.dumps(data), status=status.HTTP_200_OK)
+        return Response(data=json_data,
+                        status=status.HTTP_200_OK,
+                        content_type='json')
     
     def put(self, request, *args, **kwargs):
 
@@ -64,7 +67,9 @@ class PostView(APIView):
         if serializer.is_valid():
             serializer.save()
             json_data = json.dumps(serializer.data)
-            return Response(data=json_data, status=status.HTTP_200_OK)
+            return Response(data=json_data,
+                            status=status.HTTP_200_OK,
+                            content_type='json')
         else:
             return Response(data=None, status=status.HTTP_304_NOT_MODIFIED)
     
@@ -81,7 +86,9 @@ class PostView(APIView):
                             status=status.HTTP_201_CREATED,
                             content_type='json')
         else:
-            return Response(data=None, status=status.HTTP_501_NOT_IMPLEMENTED)
+            return Response(data=None,
+                            status=status.HTTP_501_NOT_IMPLEMENTED,
+                            content_type='json')
     
     def delete(self, request, *args, **kwargs):
         post = self.get_object()
