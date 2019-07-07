@@ -23,12 +23,16 @@ class PostSerializer(serializers.ModelSerializer):
     owner_uuid = serializers.CharField(write_only=True)
     add_communities = serializers.ListField(allow_null=True,
                                             default=None, write_only=True)
+    
+    remove_communities = serializers.ListField(write_only=True,
+                                               allow_null=True,
+                                               default=None)
 
     class Meta:
         model = Post
         fields = ['communities_list', 'owner', 'pic', 'date', 'uuid',
                     'liked', 'reported', 'owner_uuid', 'add_communities',
-                    'title', 'text', 'likes', 'reports']
+                    'remove_communities', 'title', 'text', 'likes', 'reports']
 
     def get_liked(self, obj):
         if self.context:
@@ -55,12 +59,12 @@ class PostSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         #try to get Sub from uuid given in validate_data
+        del validated_data['remove_communities']
         try:
             owner = Sub.objects.get(uuid=validated_data.pop('owner_uuid'))
             communities = validated_data.pop('add_communities')
         #if no sub has that uuid return None
         except Sub.DoesNotExist:
-            print("sorry that user does not seem to exist")
             return None
         #else create a new post
         else:
@@ -78,6 +82,10 @@ class PostSerializer(serializers.ModelSerializer):
         if uuid == str(instance.owner.uuid):
             instance.title = validated_data['title']
             instance.text = validated_data['text']
+
+            if validated_data['remove_communities']:
+                for com in validated_data['remove_communities']:
+                    instance.communities.remove(com)
             instance.save()
             return instance
         else:
