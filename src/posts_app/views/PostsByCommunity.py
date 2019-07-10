@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from posts_app.models import Post
-from posts_app.serializers import PostSerializer
+from posts_app.serializers.PostSerializer import PostSerializer
 
 from users_app.models import Sub
 
@@ -16,6 +16,19 @@ class PostsByCommunity(ListAPIView):
     '''return posts related to a specific community(tag)'''
 
     serializer = PostSerializer
+
+    def check_if_subscribed(self):
+        slug = self.kwargs['community_slug']
+
+        if request.user.is_authenticated:
+            session_sub = Sub.objects.get(user=self.request.user)
+            if slug in session_sub.communities.as_list:
+                return True
+            else:
+                return False
+        
+        else:
+            return None
 
     def get_queryset(self):
         #first get the community
@@ -49,7 +62,10 @@ class PostsByCommunity(ListAPIView):
         posts = self.get_queryset()
         context = self.get_serializer_context()
         data = self.serializer(posts, context=context, many=True).data
-        json_data = json.dumps(data)
+        json_data = json.dumps({
+            'posts': data,
+            'subscribed': self.check_if_subscribed()
+        })
 
         return Response(data=json_data,
                         status=status.HTTP_200_OK,
