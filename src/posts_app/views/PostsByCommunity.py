@@ -7,6 +7,8 @@ from posts_app.serializers.PostSerializer import PostSerializer
 
 from users_app.models import Sub
 
+from bloggit_project.utils.authentication import CustomJSONWebTokenAuthentication
+
 from taggit.models import Tag
 
 import json
@@ -16,18 +18,19 @@ class PostsByCommunity(ListAPIView):
     '''return posts related to a specific community(tag)'''
 
     serializer = PostSerializer
+    authentication_classes = (CustomJSONWebTokenAuthentication,)
 
     def check_if_subscribed(self):
         slug = self.kwargs['community_slug']
 
-        if request.user.is_authenticated:
+        if self.request.user.is_authenticated:
             session_sub = Sub.objects.get(user=self.request.user)
             if slug in session_sub.communities.as_list:
                 return True
             else:
                 return False
         
-        else:
+        elif self.request.user.is_anonymous:
             return None
 
     def get_queryset(self):
