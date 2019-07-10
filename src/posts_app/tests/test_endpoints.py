@@ -212,6 +212,9 @@ class TestPostsByCommunity(APITestCase):
         community = Tag.objects.first()
         posts = Post.objects.filter(communities=community).order_by('-id')[0:250]
         posts_data = self.serializer(posts, context=None, many=True).data
-        test_data = json.dumps(posts_data)
+        test_data = json.dumps({
+            'posts': posts_data,
+            'subscribed': None
+        })
         self.assertEqual(response.data, test_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
