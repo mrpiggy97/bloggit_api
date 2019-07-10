@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
 
 from posts_app.models import Post, CommentFeed, Comment
-from posts_app.serializers import CommentSerializer
+from posts_app.serializers.CommentSerializer import CommentSerializer
 
 from users_app.models import Sub
 
