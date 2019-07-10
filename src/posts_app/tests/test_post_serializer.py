@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
 
 from posts_app.models import Post
-from posts_app.serializers import PostSerializer
+from posts_app.serializers.PostSerializer import PostSerializer
 
 from users_app.models import Sub
 
