@@ -6,8 +6,11 @@ from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
 
 from posts_app.models import Post
+from posts_app.serializers.PostSerializer import PostSerializer
 
 from users_app.models import Sub
+
+from taggit.models import Tag
 
 import json
 
@@ -173,4 +176,42 @@ class TestDeletePost(APITestCase):
         self.client.force_authenticate(user=self.post.owner.user)
         response = self.client.delete(path=self.path)
 
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class TestPostsByCommunity(APITestCase):
+    '''test posts-by-community endpoint'''
+
+    def setUp(self):
+
+        #first create a user a sub and a couple of posts
+
+        self.user = User.objects.create(**user_test_data)
+        self.sub = Sub.objects.create(user=self.user)
+
+        for n in range (0, 4):
+            Post.objects.create(
+                title='new post',
+                text='new post',
+                owner=self.sub
+            )
+        
+        for post in Post.objects.all():
+            post.communities.add('test')
+        
+        self.path = '/posts/posts-by-community/%s/' %('test')
+        self.client = APIClient()
+        self.slug = 'test'
+        self.serializer = PostSerializer
+
+    def test_success_response(self):
+        #this request should be successful and return a 200 ok http response
+        #along with a list of posts related to a community(tag)
+        response = self.client.get(path=self.path)
+
+        community = Tag.objects.first()
+        posts = Post.objects.filter(communities=community).order_by('-id')[0:250]
+        posts_data = self.serializer(posts, context=None, many=True).data
+        test_data = json.dumps(posts_data)
+        self.assertEqual(response.data, test_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
