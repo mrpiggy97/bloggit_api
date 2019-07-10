@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from posts_app.models import Post
-from posts_app.serializers import PostSerializer
+from posts_app.serializers.PostSerializer import PostSerializer
 
 from users_app.models import Sub
 
