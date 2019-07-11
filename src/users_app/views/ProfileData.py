@@ -45,4 +45,4 @@ class ProfileData(APIView):
             'communities': communities
         })
 
-        return Response(data=json_data, status=status.HTTP_200_OK, content_type='JSON')
+        return Response(data=json_data, status=status.HTTP_200_OK, content_type='json')
