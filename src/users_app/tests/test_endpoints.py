@@ -65,6 +65,9 @@ class TestProfile(APITestCase):
         self.comment3 = create_comment(self.commentfeed2, self.sub)
         self.comment4 = create_comment(self.commentfeed2, self.sub)
 
+        self.postserializer = PostSerializer
+        self.commentserializer = CommentSerializer
+
         self.path = '/users/profile/%s/' %(str(self.sub.uuid))
 
         self.client = APIClient()
@@ -72,4 +75,23 @@ class TestProfile(APITestCase):
     def test_success_response(self):
 
         response = self.client.get(path=self.path)
+
+        post_queryset = Post.objects.filter(owner=self.sub).order_by('-id')
+        comments_queryset = Comment.objects.filter(owner=self.sub).order_by('-id')
+        context = {'session_sub': self.sub}
+        posts = self.postserializer(post_queryset, context=context, many=True).data
+        comments = self.commentserializer(comments_queryset, context=context, many=True).data
+
+        #this is the data expected as data from response
+        test_data = json.dumps({
+            'username': self.sub.get_username,
+            'profile_picture': self.sub.get_profile_pic,
+            'cake_day': self.sub.get_cake_day,
+            'uuid': self.sub.get_uuid_as_string,
+            'posts': posts,
+            'comments': comments,
+            'communities': self.sub.get_communities_as_list
+        })
+
+        self.assertEqual(response.data, test_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
