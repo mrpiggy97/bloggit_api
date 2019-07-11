@@ -4,8 +4,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.dateformat import DateFormat
 
-from posts_app.models import Post, Comment
-
 from taggit.managers import TaggableManager
 
 import json
@@ -47,14 +45,6 @@ class Sub(models.Model):
     @property
     def get_uuid_as_string(self):
         return str(self.uuid)
-    
-    @property
-    def get_posts(self):
-        return Post.objects.filter(owner=self).order_by('-id')[0:250]
-    
-    @property
-    def get_comments(self):
-        return Comment.objects.filter(owner=self).order_by('-id')[0:250]
     
     @property
     def liked_posts_as_list(self):
