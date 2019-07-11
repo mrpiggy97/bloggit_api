@@ -12,19 +12,23 @@ from posts_app.serializers.CommentSerializer import CommentSerializer
 
 from users_app.models import Sub
 
+from bloggit_project.utils.authentication import CustomJSONWebTokenAuthentication
+
 import json
 
 class ProfileData(APIView):
     '''return all posts, comments and communities'''
     '''a sub has made so far, also provide its profile picture'''
 
+    authentication_classes = (CustomJSONWebTokenAuthentication,)
+
     def get(self, request, *args, **kwargs):
 
         uuid = kwargs['sub_uuid']
         #there is always supposed to be a sub object per user
         session_sub = Sub.objects.get(uuid=uuid)
-        posts_queryset = session_sub.get_posts
-        comments_queryset = session_sub.get_comments
+        posts_queryset = Post.objects.filter(owner=session_sub).order_by('-id')
+        comments_queryset = Comment.objects.filter(owner=session_sub).order_by('-id')
         context = {'session_sub': session_sub}
 
         posts = PostSerializer(posts_queryset, context=context, many=True).data
