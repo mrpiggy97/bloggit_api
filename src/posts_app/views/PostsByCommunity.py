@@ -1,4 +1,4 @@
-from rest_framework.generics import ListAPIView
+from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -14,7 +14,7 @@ from taggit.models import Tag
 import json
 
 
-class PostsByCommunity(ListAPIView):
+class PostsByCommunity(APIView):
     '''return posts related to a specific community(tag)'''
 
     serializer = PostSerializer
@@ -59,7 +59,7 @@ class PostsByCommunity(ListAPIView):
         elif self.request.user.is_anonymous:
             return None
     
-    def list(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         '''override list method from ListAPIView'''
 
         posts = self.get_queryset()
