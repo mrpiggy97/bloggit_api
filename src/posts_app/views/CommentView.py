@@ -15,7 +15,7 @@ from bloggit_project.utils.permissions import ReadOrOwnerOnly
 import json
 
 
-class Commentiew(APIView):
+class CommentView(APIView):
     '''retrieve update create and delete comment'''
 
     serializer = CommentSerializer
