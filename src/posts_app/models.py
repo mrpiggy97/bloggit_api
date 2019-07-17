@@ -57,6 +57,10 @@ class Post(models.Model):
     def get_uuid_as_string(self):
         return str(self.uuid)
     
+    @property
+    def get_commentfeeds(self):
+        return CommentFeed.objects.filter(post=self).order_by('-id')
+    
     def __str__(self):
         return self.title[0:50]
 
