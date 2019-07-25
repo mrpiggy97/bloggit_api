@@ -4,6 +4,7 @@ from django.urls import path
 from .views.PostView import PostView
 from .views.PostsByCommunity import PostsByCommunity
 from .views.CommentView import CommentView
+from .views.SearchView import SearchView
 
 app_name = 'posts_app'
 urlpatterns = [
@@ -26,4 +27,6 @@ urlpatterns = [
     path('make-comment/', CommentView.as_view(), name='make_comment'),
     #delete-comment url
     path('delete-comment/<uuid:comment_uuid>/', CommentView.as_view(), name='delete_comment'),
+    #search-view
+    path('search/<str:query>/', SearchView.as_view(), name='search'),
 ]
