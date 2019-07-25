@@ -30,7 +30,7 @@ class TestMakePost(APITestCase):
     def test_successful_creation(self):
         #this is how a call should be valid
         self.client.force_authenticate(user=self.sub.user)
-        response = self.client.post(path=self.path, data=self.data, format='json')
+        response = self.client.post(self.path, self.data)
 
         #we will test response status code and if indeed a post has been created
 
