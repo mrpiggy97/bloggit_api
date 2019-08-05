@@ -3,6 +3,8 @@
 from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
 
+from users_app.models import Sub
+
 from django.contrib.auth.models import User
 
 #user every time a user has to be created for testing
@@ -48,4 +50,5 @@ class TestRestAuthEndpoints(APITestCase):
         }
 
         response = self.client.post(path=self.register_url, data=register_data, format="json")
+        self.assertTrue(isinstance(Sub.objects.first(), Sub))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
