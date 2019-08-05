@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'rix36+#ta54kuid!qp75ff()=-2gy0cp8hv(5sv5(^hzl9s-ig'
+SECRET_KEY = os.environ.get('BLOGGIT_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -183,8 +183,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'bloggit_database',
-        'USER': 'mrpiggy97',
-        'PASSWORD': 'Megustamasjesus10',
+        'USER': os.environ.get('BLOGGIT_DB_USER'),
+        'PASSWORD': os.environ.get('BLOGGIT_DB_PASSWORD'),
         'PORT': '',
         'HOST': '127.0.0.1'
     }
