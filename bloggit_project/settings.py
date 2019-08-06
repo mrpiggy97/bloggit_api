@@ -12,21 +12,27 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 import datetime
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+file_loader = os.path.expanduser(BASE_DIR)
+load_dotenv(os.path.join(file_loader, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('BLOGGIT_SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG')
 
-ALLOWED_HOSTS = []
+HOST = os.getenv('HOST')
+
+ALLOWED_HOSTS = [HOST]
 
 
 # Application definition
@@ -183,8 +189,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'bloggit_database',
-        'USER': os.environ.get('BLOGGIT_DB_USER'),
-        'PASSWORD': os.environ.get('BLOGGIT_DB_PASSWORD'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
         'PORT': '',
         'HOST': '127.0.0.1'
     }
