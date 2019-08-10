@@ -4,6 +4,7 @@ from django.db.models import Q
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 
 from posts_app.models import Post
 from posts_app.serializers.PostSerializer import PostSerializer
@@ -22,6 +23,7 @@ class SearchView(ListAPIView):
 
     authentication_classes = (CustomJSONWebTokenAuthentication,)
     serializer = PostSerializer
+    paginator = PageNumberPagination()
 
     def get_queryset(self):
         query = self.kwargs['query']
@@ -69,10 +71,13 @@ class SearchView(ListAPIView):
     
     def list(self, request, *args, **kwargs):
 
-        posts = self.get_queryset()
+        queryset = self.get_queryset()
         context = self.get_serializer_context()
 
-        data = self.serializer(posts, context=context, many=True).data
+        results = self.paginator.paginate_queryset(queryset, request)
+        posts = self.serializer(results, context=context, many=True).data
+        data = self.paginator.get_paginated_data(posts)
         json_data = json.dumps(data)
+        status_code = status.HTTP_200_OK
 
-        return Response(data=json_data, status=status.HTTP_200_OK, content_type='json')
+        return Response(data=json_data, status=status_code, content_type='json')
