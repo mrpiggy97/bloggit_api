@@ -5,7 +5,7 @@ from .views.PostView import PostView
 from .views.PostsByCommunity import PostsByCommunity
 from .views.CommentView import CommentView
 from .views.SearchView import SearchView
-from .views.HomeView import HomeView
+from .views.GenericListAPIViews import HomeView, PopularInCommunity
 
 app_name = 'posts_app'
 urlpatterns = [
@@ -22,6 +22,9 @@ urlpatterns = [
     #posts-by-community url
     path('posts-by-community/<slug:community_slug>/', PostsByCommunity.as_view(),
                                                         name='posts_by_community'),
+    #most popular posts in community url
+    path('most-popular/slug:community_slug/', PopularInCommunity.as_view(),
+         name='most_popular'),
     #get-comment url
     path('get-comment/<uuid:comment_uuid>/', CommentView.as_view(), name='get_comment'),
     #edit-comment url
