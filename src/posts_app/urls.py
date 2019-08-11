@@ -5,9 +5,12 @@ from .views.PostView import PostView
 from .views.PostsByCommunity import PostsByCommunity
 from .views.CommentView import CommentView
 from .views.SearchView import SearchView
+from .views.HomeView import HomeView
 
 app_name = 'posts_app'
 urlpatterns = [
+    #home url
+    path('', HomeView.as_view(), name='home'),
     #get-post url
     path('get-post/<str:post_uuid>/', PostView.as_view(), name='get_post'),
     #edit-post url
