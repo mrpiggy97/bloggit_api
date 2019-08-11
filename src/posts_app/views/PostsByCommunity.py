@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 
 from posts_app.models import Post
 from posts_app.serializers.PostSerializer import PostSerializer
@@ -19,6 +20,7 @@ class PostsByCommunity(APIView):
 
     serializer = PostSerializer
     authentication_classes = (CustomJSONWebTokenAuthentication,)
+    paginator = PageNumberPagination()
 
     def check_if_subscribed(self):
         slug = self.kwargs['community_slug']
@@ -62,14 +64,14 @@ class PostsByCommunity(APIView):
     def get(self, request, *args, **kwargs):
         '''override list method from ListAPIView'''
 
-        posts = self.get_queryset()
+        queryset = self.get_queryset()
         context = self.get_serializer_context()
-        data = self.serializer(posts, context=context, many=True).data
-        json_data = json.dumps({
-            'posts': data,
-            'subscribed': self.check_if_subscribed()
-        })
+        results = self.paginator.paginate_queryset(queryset, request)
+        posts = self.serializer(results, context=context, many=True).data
+        
+        data = self.paginator.get_paginated_data(posts)
+        data['subscribed'] = self.check_if_subscribed()
+        json_data = json.dumps(data)
+        status_code = status.HTTP_200_OK
 
-        return Response(data=json_data,
-                        status=status.HTTP_200_OK,
-                        content_type='json')
+        return Response(data=json_data, status=status_code, content_type='json')
