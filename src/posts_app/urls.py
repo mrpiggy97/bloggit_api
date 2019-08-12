@@ -23,7 +23,7 @@ urlpatterns = [
     path('posts-by-community/<slug:community_slug>/', PostsByCommunity.as_view(),
                                                         name='posts_by_community'),
     #most popular posts in community url
-    path('most-popular/slug:community_slug/', PopularInCommunity.as_view(),
+    path('most-popular/<slug:community_slug>/', PopularInCommunity.as_view(),
          name='most_popular'),
     #get-comment url
     path('get-comment/<uuid:comment_uuid>/', CommentView.as_view(), name='get_comment'),
