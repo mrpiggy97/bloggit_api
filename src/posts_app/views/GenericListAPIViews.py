@@ -58,7 +58,7 @@ class PopularInCommunity(GenericListAPIView):
     today = date.today()
     
     def get_queryset(self):
-        slug = self.kwargs['community']
+        slug = self.kwargs['community_slug']
         community = Tag.objects.get(slug=slug)
         
         return Post.objects.filter(communities=community,
