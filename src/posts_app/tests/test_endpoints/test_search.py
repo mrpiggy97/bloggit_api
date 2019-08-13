@@ -35,15 +35,13 @@ class TestSearch(APITestCase):
         self.post5.communities.add('navy', 'military')
 
         self.client = APIClient()
-        self.path = '/posts/search/%s/' %('undertaker wwe')
+        self.path = '/posts/search/{}/'.format('undertaker wwe')
         self.serializer = PostSerializer
     
     def test_success_response(self):
         #response should filter only self.post3 self.post2 and self.post1
         response = self.client.get(path=self.path)
-
-        posts = [self.post3, self.post2, self.post1]
-
-        serializer = self.serializer(posts, many=True)
-
+        data = json.loads(response.data)
+        
+        self.assertEqual(data['count'], 3)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
