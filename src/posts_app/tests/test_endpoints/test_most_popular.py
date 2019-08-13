@@ -6,8 +6,6 @@ from rest_framework import status
 from posts_app.tests.utils import create_post, create_sub, create_user
 from posts_app.models import Post
 
-from taggit.models import Tag
-
 import json
 
 
@@ -16,8 +14,9 @@ class TestMostPopular(APITestCase):
     def setUp(self):
         self.user = create_user()
         self.sub = create_sub(self.user)
-        self.community = Tag.objects.create(name='testing')
-        self.path = '/posts/most-popular/%s/' %(self.community.slug)
+        #every community created with create_post has a community called test
+        #by default
+        self.path = '/posts/most-popular/{0}/'.format('test')
         self.client = APIClient()
         
         for n in range(0, 50):
@@ -27,6 +26,9 @@ class TestMostPopular(APITestCase):
     def test_success_response(self):
         
         response = self.client.get(path=self.path)
-        posts = Post.objects.all()
-        print("{0} {1}".format(response.data, posts.count()))
+        
+        data = json.loads(response.data)
+        
+        #endpoint should return a paginated response with a count of 50
+        self.assertEqual(data['count'], 50)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
