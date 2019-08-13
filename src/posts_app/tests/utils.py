@@ -17,8 +17,10 @@ def create_sub(user):
     return Sub.objects.create(user=user)
 
 def create_post(owner):
-    return Post.objects.create(
+    post = Post.objects.create(
         title='this is the title',
         text='this is a test',
         owner=owner
     )
+    post.communities.add('test')
+    return post
