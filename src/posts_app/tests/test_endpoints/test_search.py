@@ -43,5 +43,5 @@ class TestSearch(APITestCase):
         response = self.client.get(path=self.path)
         data = json.loads(response.data)
         
-        self.assertEqual(data['count'], 3)
+        self.assertEqual(data['count'], 3)#endpoint is expected to return 3 posts
         self.assertEqual(response.status_code, status.HTTP_200_OK)
