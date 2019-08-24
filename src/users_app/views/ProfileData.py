@@ -1,6 +1,4 @@
-#profile data for sub model view
-
-from django.contrib.auth.models import User
+#profile data for sub model views
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -27,8 +25,8 @@ class ProfileData(APIView):
         uuid = kwargs['sub_uuid']
         #there is always supposed to be a sub object per user
         session_sub = Sub.objects.get(uuid=uuid)
-        posts_queryset = Post.objects.filter(owner=session_sub).order_by('-id')
-        comments_queryset = Comment.objects.filter(owner=session_sub).order_by('-id')
+        posts_query = Post.objects.filter(owner=session_sub).order_by('-id')
+        comments_query = Comment.objects.filter(owner=session_sub).order_by('-id')
         context = {'session_sub': session_sub}
 
         posts = PostSerializer(posts_queryset, context=context, many=True).data
@@ -42,7 +40,10 @@ class ProfileData(APIView):
             'uuid': session_sub.get_uuid_as_string,
             'posts': posts,
             'comments': comments,
-            'communities': communities
+            'communities': communities,
+            'authenticated': request.user.is_authenticated
         })
+        
+        status_code = status.HTTP_200_OK
 
-        return Response(data=json_data, status=status.HTTP_200_OK, content_type='json')
+        return Response(data=json_data, status=status_code, content_type='json')
