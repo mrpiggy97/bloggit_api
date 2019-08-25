@@ -19,29 +19,37 @@ class ProfileData(APIView):
     '''a sub has made so far, also provide its profile picture'''
 
     authentication_classes = (CustomJSONWebTokenAuthentication,)
+    
+    def get_serializer_context(self):
+        
+        if self.request.user.is_authenticated:
+            session_sub = Sub.objects.get(user=self.request.user)
+            return  {'session_sub': session_sub}
+        else:
+            return None
 
     def get(self, request, *args, **kwargs):
 
         uuid = kwargs['sub_uuid']
         #there is always supposed to be a sub object per user
-        session_sub = Sub.objects.get(uuid=uuid)
-        posts_query = Post.objects.filter(owner=session_sub).order_by('-id')
-        comments_query = Comment.objects.filter(owner=session_sub).order_by('-id')
-        context = {'session_sub': session_sub}
+        profile_sub = Sub.objects.get(uuid=uuid)
+        posts_query = Post.objects.filter(owner=profile_sub).order_by('-id')
+        comments_query = Comment.objects.filter(owner=profile_sub).order_by('-id')
+        context = self.get_serializer_context()
 
-        posts = PostSerializer(posts_queryset, context=context, many=True).data
-        comments = CommentSerializer(comments_queryset, context=context, many=True).data
-        communities = session_sub.get_communities_as_list
+        posts = PostSerializer(posts_query, context=context, many=True).data
+        comments = CommentSerializer(comments_query, context=context, many=True).data
+        communities = profile_sub.get_communities_as_list
 
         json_data = json.dumps({
-            'username': session_sub.get_username,
-            'profile_picture': session_sub.get_profile_pic,
-            'cake_day': session_sub.get_cake_day,
-            'uuid': session_sub.get_uuid_as_string,
+            'username': profile_sub.get_username,
+            'profile_picture': profile_sub.get_profile_pic,
+            'cake_day': profile_sub.get_cake_day,
+            'uuid': profile_sub.get_uuid_as_string,
+            'communities': communities,
+            'authenticated': request.user.is_authenticated,
             'posts': posts,
             'comments': comments,
-            'communities': communities,
-            'authenticated': request.user.is_authenticated
         })
         
         status_code = status.HTTP_200_OK
