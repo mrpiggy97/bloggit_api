@@ -14,5 +14,5 @@ urlpatterns = [
     #unsubscribe url
     path('unsubscribe/<slug:community_slug>', CommunitiesFollowed.as_view(),
                                                 name='unsubscribe'),
-    path('profile/<str:sub_uuid>/', ProfileData.as_view(), name='profile'),
+    path('profile/<uuid:sub_uuid>/', ProfileData.as_view(), name='profile'),
 ]
