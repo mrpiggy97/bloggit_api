@@ -18,3 +18,18 @@ class ReadOrOwnerOnly(permissions.BasePermission):
         
         elif request.method in permissions.SAFE_METHODS:
             return True
+
+
+class AuthenticatedAndOwnerOnly(permissions.BasePermission):
+    
+    def has_permission(self, request, view):
+        authenticated = request.user.is_authenticated
+        methods_allowed = ["POST", "PUT", "DELETE"]
+        
+        if authenticated == True and request.method in methods_allowed:
+            return True
+        else:
+            return False
+    
+    def has_object_permission(self, request, view, obj):
+        return request.user == obj.owner.user
