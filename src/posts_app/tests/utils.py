@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 
 from users_app.models import Sub
 
-from posts_app.models import Post
+from posts_app.models import Post, CommentFeed, Comment
 
 user_test_data = {
     'username': 'newusertesting23',
@@ -24,3 +24,12 @@ def create_post(owner):
     )
     post.communities.add('test')
     return post
+
+def create_original_comment(post, owner):
+    feed = CommentFeed.objects.create(post=post)
+    comment = Comment.objects.create(
+        text="this is a comment",
+        owner=owner,
+        commentfeed=feed
+    )
+    return comment
