@@ -30,3 +30,20 @@ class TestReportPost(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(post.reports, 1)
         self.assertTrue(str(post.uuid) in reported_posts)
+    
+    def test_response_from_unauthenticated_request(self):
+        response = self.client.put(path=self.path)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+    def test_unnessesary_request(self):
+        sub = Sub.objects.first()
+        reported_posts = sub.reported_posts_as_list
+        reported_posts.append(str(self.post.uuid))
+        sub.reported_posts_as_list = reported_posts
+        self.client.force_authenticate(self.user)
+        
+        response = self.client.put(path=self.path)
+        
+        #response should be a status code of 501 because
+        #post uuid is already in sub.reported_posts
+        self.assertEqual(response.status_code, status.HTTP_501_NOT_IMPLEMENTED)

@@ -33,3 +33,19 @@ class TestReportComment(APITestCase):
         self.assertEqual(comment.reports, 1)
         self.assertTrue(str(comment.uuid) in reported_comments)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_response_from_unauthenticated_request(self):
+        response = self.client.put(path=self.path)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+    def test_unnessesary_request(self):
+        sub = Sub.objects.first()
+        reported_comments = sub.reported_comments_as_list
+        reported_comments.append(str(self.comment.uuid))
+        sub.reported_comments_as_list = reported_comments
+        self.client.force_authenticate(self.user)
+        
+        response = self.client.put(path=self.path)
+        #response should be a status code of 501 since comment uuid
+        #is already in sub.reported_comments
+        self.assertEqual(response.status_code, status.HTTP_501_NOT_IMPLEMENTED)

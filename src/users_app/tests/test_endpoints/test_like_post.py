@@ -31,3 +31,19 @@ class TestLikePost(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(post.likes, 2)
         self.assertTrue(str(post.uuid) in liked_posts)
+    
+    def test_response_from_unauthenticated_request(self):
+        response = self.client.put(path=self.path)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+    def test_unnessesary_request(self):
+        sub = Sub.objects.first()
+        liked_posts = sub.liked_posts_as_list
+        liked_posts.append(str(self.post.uuid))
+        sub.liked_posts_as_list = liked_posts
+        self.client.force_authenticate(self.user)
+        
+        response = self.client.put(path=self.path)
+        #since post uuid in already in sub.liked_posts response
+        #should be a 501 http status code
+        self.assertEqual(response.status_code, status.HTTP_501_NOT_IMPLEMENTED)
