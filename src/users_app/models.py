@@ -51,8 +51,8 @@ class Sub(models.Model):
         return json.loads(self.liked_posts)
     
     @liked_posts_as_list.setter
-    def liked_posts_as_json(self, uuid_list):
-        self.liked_posts = json.dumps(uuid_list)
+    def liked_posts_as_list(self, like_list):
+        self.liked_posts = json.dumps(like_list)
         self.save()
     
     @property
@@ -60,8 +60,8 @@ class Sub(models.Model):
         return json.loads(self.liked_comments)
     
     @liked_comments_as_list.setter
-    def liked_comments_as_json(self, uuid_list):
-        self.liked_comments_as_json = json.dumps(uuid_list)
+    def liked_comments_as_list(self, like_list):
+        self.liked_comments = json.dumps(like_list)
         self.save()
     
     @property
@@ -69,8 +69,8 @@ class Sub(models.Model):
         return json.loads(self.reported_posts)
     
     @reported_posts_as_list.setter
-    def reported_posts_as_json(self, uuid_list):
-        self.reported_posts = json.dumps(uuid_list)
+    def reported_posts_as_list(self, report_list):
+        self.reported_posts = json.dumps(report_list)
         self.save()
     
     @property
@@ -78,10 +78,9 @@ class Sub(models.Model):
         return json.loads(self.reported_comments)
     
     @reported_comments_as_list.setter
-    def reported_comments_as_json(self, uuid_list):
-        self.reported_comments = json.dumps(uuid_list)
+    def reported_comments_as_list(self, report_list):
+        self.reported_comments = json.dumps(report_list)
         self.save()
-    
 
     def __str__(self):
         return self.user.username
