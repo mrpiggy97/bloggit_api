@@ -161,10 +161,6 @@ JWT_AUTH = {
     'JWT_AUTH_COOKIE': None,
 }
 
-REST_USE_JWT = True
-
-ACCOUNT_EMAIL_REQUIRED = False
-
 ROOT_URLCONF = 'bloggit_project.urls'
 
 TEMPLATES = [
@@ -244,3 +240,18 @@ SITE_ID = 1
 MEDIA_URL = '/media/pics/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, '/media/pics/')
+
+REST_USE_JWT = True
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
+
+SEND_GRID_API_KEY = "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"
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_HOST_USER = 'fabian.rivas.001'
+EMAIL_HOST_PASSWORD = 'Megustamasjesus10'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'fabyjesusrivas10bitcoin.@gmail.com'
+ACCOUNT_EMAIL_SUBJECT_PREFIX = 'confirmation email'
