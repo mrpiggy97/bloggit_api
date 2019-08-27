@@ -6,6 +6,7 @@ from rest_framework import status
 from users_app.models import Sub
 
 from django.contrib.auth.models import User
+from django.test.utils import override_settings
 
 #user every time a user has to be created for testing
 test_user_data = {
@@ -14,6 +15,7 @@ test_user_data = {
     'password': "testingpassword"
 }
 
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend')
 class TestRestAuthEndpoints(APITestCase):
     '''test login and logout endpoints from rest-auth'''
 
@@ -22,6 +24,7 @@ class TestRestAuthEndpoints(APITestCase):
         self.login_url = "/rest-auth/login/"
         self.logout_url = "/rest-auth/logout/"
         self.register_url = "/rest-auth/registration/"
+        self.recover_password_url = '/rest-auth/password/reset/'
         self.client = APIClient()
         self.data = {
             'username': test_user_data['username'],
@@ -52,3 +55,28 @@ class TestRestAuthEndpoints(APITestCase):
         response = self.client.post(path=self.register_url, data=register_data, format="json")
         self.assertTrue(isinstance(Sub.objects.first(), Sub))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    
+    def test_recover_password(self):
+        data = {'email': 'fabyjesusrivas10@gmail.com'}
+        path2 = '/rest-auth/password/reset/confirm/'
+        User.objects.create_user(
+            username='thisistheusername',
+            password='thisisasd123',
+            email='fabyjesusrivas10@gmail.com'
+        )
+        response = self.client.post(
+            path=self.recover_password_url,
+            data=data,
+            )
+        
+        token = str(input("token: "))
+        uid = str(input("uid here: "))
+        data2 = {
+            'new_password1':'thisisthenewp34',
+            'new_password2': 'thisisthenewp34',
+            'token': token,
+            'uid': uid
+            }
+        response2 = self.client.post(path=path2, data=data2)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
