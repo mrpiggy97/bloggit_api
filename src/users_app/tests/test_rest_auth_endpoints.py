@@ -24,7 +24,7 @@ class TestRestAuthEndpoints(APITestCase):
         self.login_url = "/rest-auth/login/"
         self.logout_url = "/rest-auth/logout/"
         self.register_url = "/rest-auth/registration/"
-        self.recover_password_url = '/rest-auth/password/reset/'
+        self.recover_password_url = '/password-reset/'
         self.client = APIClient()
         self.data = {
             'username': test_user_data['username'],
@@ -58,25 +58,23 @@ class TestRestAuthEndpoints(APITestCase):
     
     def test_recover_password(self):
         data = {'email': 'fabyjesusrivas10@gmail.com'}
-        path2 = '/rest-auth/password/reset/confirm/'
-        User.objects.create_user(
+        user = User.objects.create_user(
             username='thisistheusername',
             password='thisisasd123',
             email='fabyjesusrivas10@gmail.com'
         )
-        response = self.client.post(
-            path=self.recover_password_url,
-            data=data,
-            )
+        
+        response = self.client.post( path=self.recover_password_url, data=data)
         
         token = str(input("token: "))
         uid = str(input("uid here: "))
+        path2 = '/password-reset/confirm/{0}/{1}/'.format(uid, token)
         data2 = {
-            'new_password1':'thisisthenewp34',
-            'new_password2': 'thisisthenewp34',
-            'token': token,
-            'uid': uid
+            'new_password1':'thisisnewpassword34',
+            'new_password2':'thisisnewpassword34',
+            'uid': uid,
+            'token': token
             }
         response2 = self.client.post(path=path2, data=data2)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
