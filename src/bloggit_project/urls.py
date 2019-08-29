@@ -13,10 +13,16 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, re_path, include
-from rest_framework_swagger.views import get_swagger_view
+from django.conf import settings
+from django.conf.urls.static import static
 from django.views.generic import TemplateView
+from rest_framework_swagger.views import get_swagger_view
+from rest_auth.views import PasswordResetConfirmView
+
+from bloggit_project.utils.views import CustomPasswordResetView
 schema_view = get_swagger_view(title='bloggit API')
 
 urlpatterns = [
@@ -26,7 +32,8 @@ urlpatterns = [
     path('api-docs', schema_view),
     path('posts/', include('posts_app.urls')),
     path('users/', include('users_app.urls')),
+    path('password-reset/', CustomPasswordResetView.as_view(), name="password_reset"),
     re_path(r'^password-reset/confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
-        TemplateView.as_view(template_name="password_reset_confirm.html"),
+        PasswordResetConfirmView.as_view(),
         name='password_reset_confirm'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
