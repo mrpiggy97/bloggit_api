@@ -24,7 +24,7 @@ class TestRestAuthEndpoints(APITestCase):
         self.login_url = "/rest-auth/login/"
         self.logout_url = "/rest-auth/logout/"
         self.register_url = "/rest-auth/registration/"
-        self.recover_password_url = '/password-reset/'
+        self.password_reset_url = '/password-reset/'
         self.client = APIClient()
         self.data = {
             'username': test_user_data['username'],
@@ -64,17 +64,47 @@ class TestRestAuthEndpoints(APITestCase):
             email='fabyjesusrivas10@gmail.com'
         )
         
-        response = self.client.post( path=self.recover_password_url, data=data)
+        #to test password-reset/confirm endpoint first we need to make a request
+        #to password-reset endpoint
+        response = self.client.post(path=self.password_reset_url, data=data)
+        uid = input("place uid here: ")
+        token = input("place token here: ")
+        password_confirm_url = '/password-reset/confirm/{0}/{1}/'.format(uid, token)
         
-        token = str(input("token: "))
-        uid = str(input("uid here: "))
-        path2 = '/password-reset/confirm/{0}/{1}/'.format(uid, token)
+        #this data is expected to work
         data2 = {
             'new_password1':'thisisnewpassword34',
             'new_password2':'thisisnewpassword34',
             'uid': uid,
             'token': token
             }
-        response2 = self.client.post(path=path2, data=data2)
+        response2 = self.client.post(path=password_confirm_url, data=data2)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
+    
+    def test_error_response_from_password_reset(self):
+        user = User.objects.create_user(
+            username="newuser1234a@",
+            email="fabyjesusrivas10@gmail.com",
+            password="thisisthepassword124"
+        )
+        
+        data = {'email': user.email}
+        
+        response = self.client.post(path=self.password_reset_url, data=data)
+        
+        uid = input("place uid here: ")
+        token = input("put token here: ")
+        password_confirm_url = "/password-reset/confirm/{0}/{1}/".format(uid, token)
+        
+        #this data is not supposed to work
+        data2 = {
+            'password1': 'thisisthe111',
+            'password2': 'notsupposed12',
+            'uid': uid,
+            'token': token
+        }
+        
+        response2 = self.client.post(path=password_confirm_url, data=data2)
+        
+        self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
