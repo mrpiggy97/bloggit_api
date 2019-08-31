@@ -4,7 +4,6 @@ from django.db.models import Q
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.pagination import PageNumberPagination
 
 from posts_app.models import Post
 from posts_app.serializers.PostSerializer import PostSerializer
@@ -12,6 +11,7 @@ from posts_app.serializers.PostSerializer import PostSerializer
 from users_app.models import Sub
 
 from bloggit_project.utils.authentication import CustomJSONWebTokenAuthentication
+from bloggit_project.utils.pagination import CustomPagination
 
 from taggit.models import Tag
 
@@ -23,7 +23,7 @@ class SearchView(ListAPIView):
 
     authentication_classes = (CustomJSONWebTokenAuthentication,)
     serializer = PostSerializer
-    paginator = PageNumberPagination()
+    paginator = CustomPagination()
 
     def get_queryset(self):
         query = self.kwargs['query']
