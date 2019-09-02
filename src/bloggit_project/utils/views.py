@@ -5,6 +5,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 
+from rest_auth.registration.views import RegisterView
+
+from users_app.models import Sub
+
 from bloggit_project.utils.serializers import CustomPasswordResetSerializer
 
 class CustomPasswordResetView(GenericAPIView):
@@ -28,3 +32,18 @@ class CustomPasswordResetView(GenericAPIView):
             {"detail": _("Password reset e-mail has been sent.")},
             status=status.HTTP_200_OK
         )
+
+
+class CustomRegisterView(RegisterView):
+    '''create sub along with user'''
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = self.perform_create(serializer)
+        Sub.objects.create(user=user)
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(self.get_response_data(user),
+                        status=status.HTTP_201_CREATED,
+                        headers=headers)
