@@ -15,7 +15,6 @@ from bloggit_project.utils.pagination import CustomPagination
 
 from taggit.models import Tag
 
-import json
 
 
 class SearchView(ListAPIView):
@@ -77,7 +76,6 @@ class SearchView(ListAPIView):
         results = self.paginator.paginate_queryset(queryset, request)
         posts = self.serializer(results, context=context, many=True).data
         data = self.paginator.get_paginated_data(posts)
-        json_data = json.dumps(data)
         status_code = status.HTTP_200_OK
 
-        return Response(data=json_data, status=status_code, content_type='json')
+        return Response(data=data, status=status_code, content_type='json')

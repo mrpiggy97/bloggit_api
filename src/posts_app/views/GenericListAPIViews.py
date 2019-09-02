@@ -13,9 +13,7 @@ from bloggit_project.utils.pagination import CustomPagination
 from taggit.models import Tag
 
 from datetime import date
-
 import json
-
 
 class GenericListAPIView(ListAPIView):
     '''provide a base view that can be inherited'''
@@ -40,10 +38,9 @@ class GenericListAPIView(ListAPIView):
         posts = self.serializer(results, context=context, many=True).data
         
         data = self.paginator.get_paginated_data(posts)
-        json_data = json.dumps(data)
         status_code = status.HTTP_200_OK
         
-        return Response(data=json_data, status=status_code, content_type='json')
+        return Response(data=data, status=status_code, content_type='application/json')
 
 
 class HomeView(GenericListAPIView):

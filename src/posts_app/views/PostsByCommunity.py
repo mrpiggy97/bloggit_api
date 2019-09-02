@@ -12,7 +12,6 @@ from bloggit_project.utils.pagination import CustomPagination
 
 from taggit.models import Tag
 
-import json
 
 
 class PostsByCommunity(APIView):
@@ -71,7 +70,6 @@ class PostsByCommunity(APIView):
         
         data = self.paginator.get_paginated_data(posts)
         data['subscribed'] = self.check_if_subscribed()
-        json_data = json.dumps(data)
         status_code = status.HTTP_200_OK
 
-        return Response(data=json_data, status=status_code, content_type='json')
+        return Response(data=data, status=status_code, content_type='json')

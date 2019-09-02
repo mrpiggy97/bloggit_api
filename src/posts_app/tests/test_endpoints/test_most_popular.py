@@ -27,8 +27,6 @@ class TestMostPopular(APITestCase):
         
         response = self.client.get(path=self.path)
         
-        data = json.loads(response.data)
-        
         #endpoint should return a paginated response with a count of 50
-        self.assertEqual(data['count'], 50)
+        self.assertEqual(response.data['count'], 50)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

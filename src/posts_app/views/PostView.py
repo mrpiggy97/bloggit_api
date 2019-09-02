@@ -10,9 +10,7 @@ from users_app.models import Sub
 
 from bloggit_project.utils.authentication import CustomJSONWebTokenAuthentication
 from bloggit_project.utils.permissions import ReadOrOwnerOnly
-
 import json
-
 
 
 class PostView(APIView):
@@ -58,16 +56,14 @@ class PostView(APIView):
         commentfeed_data = self.commentfeed_serializer(commentfeeds,
                                                         context=context,
                                                         many=True).data
-        json_data = json.dumps({
+        data = {
             'posts': post_data,
             'commentfeeds': commentfeed_data
-        })
+        }
+        
+        status_code = status.HTTP_200_OK
 
-        return Response(
-            data=json_data,
-            status=status.HTTP_200_OK,
-            content_type='json'
-            )
+        return Response(data=data, status=status_code, content_type='json')
     
     def put(self, request, *args, **kwargs):
 
@@ -78,10 +74,9 @@ class PostView(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            json_data = json.dumps(serializer.data)
-            return Response(data=json_data,
-                            status=status.HTTP_200_OK,
-                            content_type='json')
+            data = serializer.data
+            status_code = status.HTTP_200_OK
+            return Response(data=data, status=status_code, content_type='json')
         else:
             return Response(data=None, status=status.HTTP_304_NOT_MODIFIED)
     
@@ -93,14 +88,12 @@ class PostView(APIView):
         
         if serializer.is_valid():
             serializer.save()
-            response_data = json.dumps(serializer.data)
-            return Response(data=response_data,
-                            status=status.HTTP_201_CREATED,
-                            content_type='json')
+            data = serializer.data
+            status_code = status.HTTP_201_CREATED
+            return Response(data=data, status=status_code, content_type='json')
         else:
-            return Response(data=None,
-                            status=status.HTTP_501_NOT_IMPLEMENTED,
-                            content_type='json')
+            status_code = status.HTTP_501_NOT_IMPLEMENTED
+            return Response(data=None, status=status_code, content_type='json')
     
     def delete(self, request, *args, **kwargs):
         post = self.get_object()

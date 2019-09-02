@@ -7,8 +7,6 @@ from posts_app.tests.utils import create_post, create_sub, create_user
 from posts_app.serializers.PostSerializer import PostSerializer
 from posts_app.models import Post
 
-import json
-
 
 class TestSearch(APITestCase):
     
@@ -41,7 +39,6 @@ class TestSearch(APITestCase):
     def test_success_response(self):
         #response should filter only self.post3 self.post2 and self.post1
         response = self.client.get(path=self.path)
-        data = json.loads(response.data)
         
-        self.assertEqual(data['count'], 3)#endpoint is expected to return 3 posts
+        self.assertEqual(response.data['count'], 3)#endpoint is expected to return 3 posts
         self.assertEqual(response.status_code, status.HTTP_200_OK)

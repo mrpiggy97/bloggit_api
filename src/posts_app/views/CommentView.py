@@ -11,9 +11,7 @@ from users_app.models import Sub
 
 from bloggit_project.utils.authentication import CustomJSONWebTokenAuthentication
 from bloggit_project.utils.permissions import ReadOrOwnerOnly
-
 import json
-
 
 class CommentView(APIView):
     '''retrieve update create and delete comment'''
@@ -50,10 +48,9 @@ class CommentView(APIView):
         comment = self.get_object()
         context = self.get_serializer_context()
         data = self.serializer(comment, context=context).data
+        status_code = status.HTTP_200_OK
 
-        json_data = json.dumps(data)
-
-        return Response(data=json_data, status=status.HTTP_200_OK, content_type='json')
+        return Response(data=data, status=status_code, content_type='json')
     
     def post(self, request, *args, **kwargs):
 
@@ -62,13 +59,10 @@ class CommentView(APIView):
         serializer = self.serializer(data=data, context=context)
         if serializer.is_valid():
             serializer.save()
-            json_data = json.dumps(serializer.data)
+            data = serializer.data
+            status_code = status.HTTP_201_CREATED
 
-            return Response(
-                data=json_data,
-                status=status.HTTP_201_CREATED,
-                content_type='json'
-                )
+            return Response(data=data, status=status_code, content_type='json')
         else:
             return Response(data=None, status=status.HTTP_400_BAD_REQUEST)
     
@@ -81,13 +75,10 @@ class CommentView(APIView):
         serializer = self.serializer(comment, data=data, context=context)
         if serializer.is_valid():
             serializer.save()
-            json_data = json.dumps(serializer.data)
+            data = serializer.data
+            status_code = status.HTTP_200_OK
 
-            return Response(
-                data=json_data,
-                status=status.HTTP_200_OK,
-                content_type='json'
-            )
+            return Response(data=data, status=status_code, content_type='json')
         else:
             return Response(data=None, status=status.HTTP_400_BAD_REQUEST)
     
