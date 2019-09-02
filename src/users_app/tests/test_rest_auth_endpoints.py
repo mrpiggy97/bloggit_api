@@ -23,7 +23,7 @@ class TestRestAuthEndpoints(APITestCase):
         self.user = User.objects.create_user(**test_user_data)
         self.login_url = "/rest-auth/login/"
         self.logout_url = "/rest-auth/logout/"
-        self.register_url = "/rest-auth/registration/"
+        self.register_url = "/register/"
         self.password_reset_url = '/password-reset/'
         self.client = APIClient()
         self.data = {
@@ -43,6 +43,9 @@ class TestRestAuthEndpoints(APITestCase):
         response = self.client.post(path=self.logout_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     
+    #we use a 'custom' view for register part so we dont use rest_auth urls
+    #here but since the view used inherits from rest_auth register view
+    #the test will be done here
     def test_register_endpoint(self):
 
         register_data = {
@@ -55,7 +58,7 @@ class TestRestAuthEndpoints(APITestCase):
         response = self.client.post(path=self.register_url, data=register_data, format="json")
         self.assertTrue(isinstance(Sub.objects.first(), Sub))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    
+        
     def test_recover_password(self):
         data = {'email': 'fabyjesusrivas10@gmail.com'}
         user = User.objects.create_user(
