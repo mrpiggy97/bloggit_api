@@ -8,8 +8,6 @@ from posts_app.serializers.PostSerializer import PostSerializer
 from posts_app.serializers.CommentSerializer import CommentSerializer
 from posts_app.tests.utils import create_post, create_sub, create_user
 
-import json
-
 
 class TestGetProfile(APITestCase):
     
@@ -20,7 +18,7 @@ class TestGetProfile(APITestCase):
       self.path = '/users/profile/%s/' %(str(self.sub.uuid))
       self.client = APIClient()
       
-      for n in range(0, 20):
+      for n in range(0, 1):
           create_post(self.sub)
     
     def get_posts(self, authenticated):
@@ -39,7 +37,7 @@ class TestGetProfile(APITestCase):
     
     def get_comments(self, authenticated):
         
-        query = Comment.objects.filter(owner=self.sub)
+        query = Comment.objects.filter(owner=self.sub).order_by('-id')
         
         if authenticated == False:
             context = None
@@ -59,31 +57,32 @@ class TestGetProfile(APITestCase):
         self.client.force_authenticate(user=self.user)
         authenticated_response = self.client.get(path=self.path)
         
-        #this is the data expected as data from anonymous_response
-        data = {
+        #this is the data expected as data from authenticated_response
+        authenticated_data = {
             'username': self.sub.get_username,
             'profile_picture': self.sub.get_profile_pic,
             'cake_day': self.sub.get_cake_day,
             'uuid': self.sub.get_uuid_as_string,
             'communities': self.sub.get_communities_as_list,
+            'authenticated': True,
+            'posts': self.get_posts(authenticated=True),
+            'comments': self.get_comments(authenticated=True)
         }
-
-        #this is the data expected as data from authenticated_response
-        authenticated_data = data
-        authenticated_data['authenticated'] = True
-        authenticated_data['posts'] = self.get_posts(authenticated=True)
-        authenticated_data['comments'] = self.get_comments(authenticated=True)
-        json_authenticated_data = json.dumps(authenticated_data)
         
-        #this is the data expected from and anonymous request
-        anonymous_data = data
-        anonymous_data['authenticated'] = False
-        anonymous_data['posts'] = self.get_posts(authenticated=False)
-        anonymous_data['comments'] = self.get_comments(authenticated=False)
-        json_anonymous_data = json.dumps(anonymous_data)
+        #this is the data expected from and anonymous_response
+        anonymous_data = {
+            'username': self.sub.get_username,
+            'profile_picture': self.sub.get_profile_pic,
+            'cake_day': self.sub.get_cake_day,
+            'uuid': self.sub.get_uuid_as_string,
+            'communities': self.sub.get_communities_as_list,
+            'authenticated': False,
+            'posts': self.get_posts(authenticated=False),
+            'comments': self.get_comments(authenticated=False)
+        }
         
         self.assertEqual(anonymous_response.status_code, status.HTTP_200_OK)
-        self.assertTrue(anonymous_response.data == json_anonymous_data)
+        self.assertTrue(anonymous_response.data == anonymous_data)
         
         self.assertEqual(authenticated_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(authenticated_response.data, json_authenticated_data)
+        self.assertTrue(authenticated_response.data == authenticated_data)
