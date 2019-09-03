@@ -12,8 +12,6 @@ from users_app.models import Sub
 
 from bloggit_project.utils.authentication import CustomJSONWebTokenAuthentication
 
-import json
-
 class ProfileData(APIView):
     '''return all posts, comments and communities'''
     '''a sub has made so far, also provide its profile picture'''
@@ -41,7 +39,7 @@ class ProfileData(APIView):
         comments = CommentSerializer(comments_query, context=context, many=True).data
         communities = profile_sub.get_communities_as_list
 
-        json_data = json.dumps({
+        data = {
             'username': profile_sub.get_username,
             'profile_picture': profile_sub.get_profile_pic,
             'cake_day': profile_sub.get_cake_day,
@@ -50,8 +48,8 @@ class ProfileData(APIView):
             'authenticated': request.user.is_authenticated,
             'posts': posts,
             'comments': comments,
-        })
+        }
         
         status_code = status.HTTP_200_OK
 
-        return Response(data=json_data, status=status_code, content_type='json')
+        return Response(data=data, status=status_code)
