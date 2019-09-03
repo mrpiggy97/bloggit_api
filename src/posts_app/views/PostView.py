@@ -63,7 +63,7 @@ class PostView(APIView):
         
         status_code = status.HTTP_200_OK
 
-        return Response(data=data, status=status_code, content_type='json')
+        return Response(data=data, status=status_code)
     
     def put(self, request, *args, **kwargs):
 
@@ -76,7 +76,7 @@ class PostView(APIView):
             serializer.save()
             data = serializer.data
             status_code = status.HTTP_200_OK
-            return Response(data=data, status=status_code, content_type='json')
+            return Response(data=data, status=status_code)
         else:
             return Response(data=None, status=status.HTTP_304_NOT_MODIFIED)
     
@@ -90,7 +90,7 @@ class PostView(APIView):
             serializer.save()
             data = serializer.data
             status_code = status.HTTP_201_CREATED
-            return Response(data=data, status=status_code, content_type='json')
+            return Response(data=data, status=status_code)
         else:
             status_code = status.HTTP_501_NOT_IMPLEMENTED
             return Response(data=None, status=status_code, content_type='json')

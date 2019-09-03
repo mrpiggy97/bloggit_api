@@ -50,7 +50,7 @@ class CommentView(APIView):
         data = self.serializer(comment, context=context).data
         status_code = status.HTTP_200_OK
 
-        return Response(data=data, status=status_code, content_type='json')
+        return Response(data=data, status=status_code)
     
     def post(self, request, *args, **kwargs):
 
@@ -62,7 +62,7 @@ class CommentView(APIView):
             data = serializer.data
             status_code = status.HTTP_201_CREATED
 
-            return Response(data=data, status=status_code, content_type='json')
+            return Response(data=data, status=status_code)
         else:
             return Response(data=None, status=status.HTTP_400_BAD_REQUEST)
     
@@ -78,7 +78,7 @@ class CommentView(APIView):
             data = serializer.data
             status_code = status.HTTP_200_OK
 
-            return Response(data=data, status=status_code, content_type='json')
+            return Response(data=data, status=status_code)
         else:
             return Response(data=None, status=status.HTTP_400_BAD_REQUEST)
     

@@ -72,4 +72,4 @@ class PostsByCommunity(APIView):
         data['subscribed'] = self.check_if_subscribed()
         status_code = status.HTTP_200_OK
 
-        return Response(data=data, status=status_code, content_type='json')
+        return Response(data=data, status=status_code)

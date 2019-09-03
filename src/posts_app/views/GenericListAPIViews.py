@@ -40,7 +40,7 @@ class GenericListAPIView(ListAPIView):
         data = self.paginator.get_paginated_data(posts)
         status_code = status.HTTP_200_OK
         
-        return Response(data=data, status=status_code, content_type='application/json')
+        return Response(data=data, status=status_code)
 
 
 class HomeView(GenericListAPIView):
