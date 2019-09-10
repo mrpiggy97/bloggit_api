@@ -58,7 +58,8 @@ class PostView(APIView):
                                                         many=True).data
         data = {
             'posts': post_data,
-            'commentfeeds': commentfeed_data
+            'commentfeeds': commentfeed_data,
+            'authenticated': request.user.is_authenticated
         }
         
         status_code = status.HTTP_200_OK

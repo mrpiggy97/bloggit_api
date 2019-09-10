@@ -70,6 +70,7 @@ class PostsByCommunity(APIView):
         
         data = self.paginator.get_paginated_data(posts)
         data['subscribed'] = self.check_if_subscribed()
+        data['authenticated'] = request.user.is_authenticated
         status_code = status.HTTP_200_OK
 
         return Response(data=data, status=status_code)

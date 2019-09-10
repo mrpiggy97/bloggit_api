@@ -76,6 +76,7 @@ class SearchView(ListAPIView):
         results = self.paginator.paginate_queryset(queryset, request)
         posts = self.serializer(results, context=context, many=True).data
         data = self.paginator.get_paginated_data(posts)
+        data['authenticated'] = request.user.is_authenticated
         status_code = status.HTTP_200_OK
 
         return Response(data=data, status=status_code)

@@ -48,6 +48,7 @@ class CommentView(APIView):
         comment = self.get_object()
         context = self.get_serializer_context()
         data = self.serializer(comment, context=context).data
+        data['authenticated'] = request.user.is_authenticated
         status_code = status.HTTP_200_OK
 
         return Response(data=data, status=status_code)
