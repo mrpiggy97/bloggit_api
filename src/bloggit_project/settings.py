@@ -85,7 +85,6 @@ CORS_ORIGIN_WHITELIST = (
 
 CSRF_TRUSTED_ORIGINS = (
     'localhost:8000',
-    'rant-fml.com',
 )
 
 CORS_ALLOW_METHODS = (
