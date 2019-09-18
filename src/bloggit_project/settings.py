@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 import datetime
 from dotenv import load_dotenv
-import ast
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -29,7 +28,7 @@ load_dotenv(os.path.join(file_loader, '.env'))
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = ast.literal_eval(os.getenv('DEBUG'))
+DEBUG = eval(os.getenv('DEBUG').capitalize())
 
 HOST = os.getenv('HOST')
 
@@ -152,7 +151,7 @@ JWT_AUTH = {
     'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
 
     'JWT_RESPONSE_PAYLOAD_HANDLER':
-    'bloggit_project.utils.payload_handler.custom_payload_jwt_response_handler',
+    'bloggit_project.utils.payload_handler.payload_handler',
 
     'JWT_SECRET_KEY': SECRET_KEY,
     'JWT_GET_USER_SECRET_KEY': None,
