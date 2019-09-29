@@ -12,6 +12,7 @@ from users_app.models import Sub
 
 from bloggit_project.utils.authentication import CustomJSONWebTokenAuthentication
 from bloggit_project.utils.pagination import CustomPagination
+from bloggit_project.utils.search_for_posts import search_for_posts
 
 from taggit.models import Tag
 
@@ -23,40 +24,6 @@ class SearchView(ListAPIView):
     authentication_classes = (CustomJSONWebTokenAuthentication,)
     serializer = PostSerializer
     paginator = CustomPagination()
-
-    def get_queryset(self):
-        query = self.kwargs['query']
-        #separate every word in query by space
-        queryList = list(query.split(" "))
-        communities = {}
-        #communities whose name are found in query
-        relevantCommunities = []
-        posts = []
-
-        #filter communities based on every word in queryList
-        for word in queryList:
-            comms = Tag.objects.filter(Q(slug__icontains=word))
-            communities[word] = comms
-        #loop through every communityList in communities
-        for communityList in communities.values():
-            #loop through every community in comunityList
-            for community in communityList:
-                #if the name of current community is found in query and has yet
-                #to be appended to relevantCommunities append it
-                if community.name in query and community not in relevantCommunities:
-                    relevantCommunities.append(community)
-        
-        #loop through every community relevant to query (relevantCommunities)
-        #make a query with every community and append every post found in that
-        #query if post not in posts
-        for community in relevantCommunities:
-            postsQuery = Post.objects.filter(communities=community).order_by('-id')
-            
-            for post in postsQuery:
-                if post not in posts:
-                    posts.append(post)
-        
-        return posts
     
     def get_serializer_context(self):
 
@@ -70,7 +37,7 @@ class SearchView(ListAPIView):
     
     def list(self, request, *args, **kwargs):
 
-        queryset = self.get_queryset()
+        queryset = search_for_posts(kwargs['query'])
         context = self.get_serializer_context()
 
         results = self.paginator.paginate_queryset(queryset, request)
