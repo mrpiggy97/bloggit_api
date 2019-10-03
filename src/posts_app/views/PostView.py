@@ -67,9 +67,10 @@ class PostView(APIView):
         return Response(data=data, status=status_code)
     
     def put(self, request, *args, **kwargs):
-
+        session_sub = Sub.objects.get(user=request.user)
         post = self.get_object()
-        data = json.loads(request.data)
+        data = request.data
+        data['owner_uuid'] = str(session_sub.uuid)
         context = self.get_serializer_context()
         serializer = self.post_serializer(post, data=data, context=context)
 
@@ -82,8 +83,9 @@ class PostView(APIView):
             return Response(data=None, status=status.HTTP_304_NOT_MODIFIED)
     
     def post(self, request, *args, **kwargs):
-
-        data = json.loads(request.data)
+        session_sub = Sub.objects.get(user=request.user)
+        data = request.data
+        data['owner_uuid'] = str(session_sub.uuid)
         context = self.get_serializer_context()
         serializer = self.post_serializer(data=data, context=context)
         
@@ -94,7 +96,7 @@ class PostView(APIView):
             return Response(data=data, status=status_code)
         else:
             status_code = status.HTTP_501_NOT_IMPLEMENTED
-            return Response(data=None, status=status_code, content_type='json')
+            return Response(data=None, status=status_code)
     
     def delete(self, request, *args, **kwargs):
         post = self.get_object()

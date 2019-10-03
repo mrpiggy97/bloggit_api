@@ -21,11 +21,10 @@ class TestEditPost(APITestCase):
 
         self.path = '/posts/edit-post/%s/' %(str(self.post.uuid))
         self.client = APIClient()
-        self.data = json.dumps({
+        self.data = {
             'title': 'edited title',
             'text': 'edited text',
-            'owner_uuid': str(self.post.owner.uuid)
-        })
+        }
     
     def test_success_response(self):
 
@@ -46,6 +45,7 @@ class TestEditPost(APITestCase):
             password='newpassword47',
             email='newemail@mail.com'
         )
+        new_sub = create_sub(new_user)
 
         #now authenticate that new user
         self.client.force_authenticate(user=new_user)
@@ -53,15 +53,13 @@ class TestEditPost(APITestCase):
         #make call
         response = self.client.put(path=self.path, data=self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    
+
     def test_error_response_from_bad_data(self):
         #test http response given when serializer is not valid
 
-        bad_data = json.dumps({
+        bad_data = {
             'title': 'new tle',
-            'text': 'new text',
-            'owner_uuid': None
-        })
+        }
 
         self.client.force_authenticate(user=self.post.owner.user)
         response = self.client.put(path=self.path, data=bad_data, format='json')

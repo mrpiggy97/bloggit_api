@@ -20,12 +20,11 @@ class TestMakePost(APITestCase):
 
         self.path = '/posts/make-post/'
         self.client = APIClient()
-        self.data = json.dumps({
+        self.data = {
             'title': 'this is a new post',
             'text': 'this is a new post',
-            'owner_uuid': str(self.sub.uuid),
             'add_communities': ['test', 'first post']
-        })
+        }
     
     def test_successful_creation(self):
         #this is how a call should be valid

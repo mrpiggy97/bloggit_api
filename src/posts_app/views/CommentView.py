@@ -54,8 +54,9 @@ class CommentView(APIView):
         return Response(data=data, status=status_code)
     
     def post(self, request, *args, **kwargs):
-
-        data = json.loads(request.POST['data'])
+        session_sub = Sub.objects.get(user=request.user)
+        data = request.POST['data']
+        data['owner_uuid'] = str(session_sub.uuid)
         context = self.get_serializer_context()
         serializer = self.serializer(data=data, context=context)
         if serializer.is_valid():
@@ -69,10 +70,11 @@ class CommentView(APIView):
     
     def put(self, request, *args, **kwargs):
         '''update comment instance'''
-
+        session_sub = Sub.objects.get(user=request.user)
         comment = self.get_object()
         context = self.get_serializer_context()
-        data = json.loads(request.data)
+        data = request.data
+        data['owner_uuid'] = str(session_sub.uuid)
         serializer = self.serializer(comment, data=data, context=context)
         if serializer.is_valid():
             serializer.save()
