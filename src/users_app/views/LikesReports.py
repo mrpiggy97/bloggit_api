@@ -50,7 +50,7 @@ def like_comment(request, comment_uuid):
         status_code = status.HTTP_501_NOT_IMPLEMENTED
         return Response(data=None, status=status_code)
     
-    else:
+    elif str(comment.uuid) not in liked_comments:
         liked_comments.append(str(comment.uuid))
         session_sub.liked_comments_as_list = liked_comments
         comment.likes = comment.likes + 1
