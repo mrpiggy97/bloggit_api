@@ -2,41 +2,40 @@
 
 from rest_framework import serializers
 
-from posts_app.models import CommentFeed, Comment
+from posts_app.models import Post, CommentFeed, Comment
 
 from users_app.models import Sub
 
+base_fields = ['uuid',  'liked', 'reported', 'owner_uuid', 'has_parent',
+        'is_original', 'parent_comment', 'text', 'likes', 'reports',
+        'date', 'pic', 'owner']
 
-class CommentSerializer(serializers.ModelSerializer):
-    '''serializer for Comment model'''
+base_extra_kwargs = {
+    'has_parent': {'read_only': True},
+    'is_original': {'read_only': True},
+}
+        
 
+class BaseCommentSerializer(serializers.ModelSerializer):
+    '''the base model for all comment serializers'''
+    
     #read only fields
     uuid = serializers.CharField(source="get_uuid_as_string", read_only=True)
-    owner = serializers.DictField(source="get_owner_info", read_only=True)
-    pic = serializers.CharField(source="get_pic", read_only=True)
-    parent_comment = serializers.DictField(source="get_parent_comment",
-                                                allow_null=True, read_only=True)
-    date = serializers.CharField(source="get_date_posted", read_only=True)
     liked = serializers.SerializerMethodField()
     reported = serializers.SerializerMethodField()
-
+    date = serializers.CharField(source="get_date_posted", read_only=True)
+    parent_comment = serializers.DictField(source="get_parent_comment", read_only=True)
+    pic = serializers.CharField(source="get_pic", read_only=True)
+    owner = serializers.DictField(source="get_owner_info", read_only=True)
+    
     #write only fields
-    owner_uuid = serializers.CharField(write_only=True)
-    commentfeed_uuid = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = Comment
-        fields = ['uuid', 'owner', 'pic', 'parent_comment', 'date', 'liked',
-                    'reported', 'owner_uuid', 'commentfeed_uuid', 'text',
-                    'has_parent', 'is_original', 'likes', 'reports']
-
+    owner_uuid = serializers.CharField(write_only=True, allow_null=True, default=None)
+    
     def get_liked(self, obj):
-        '''check if obj uuid is in any Sub model liked_posts'''
-
+        
         if self.context:
             session_sub = self.context['session_sub']
-            
-            if obj.get_uuid_as_string in session_sub.liked_comments_as_list:
+            if str(obj.uuid) in session_sub.liked_comments_as_list:
                 return True
             else:
                 return False
@@ -44,66 +43,152 @@ class CommentSerializer(serializers.ModelSerializer):
             return None
     
     def get_reported(self, obj):
-
+        
         if self.context:
             session_sub = self.context['session_sub']
-
-            if obj.get_uuid_as_string in session_sub.reported_comments_as_list:
+            
+            if str(obj.uuid) in session_sub.reported_comments_as_list:
                 return True
             else:
                 return False
         else:
             return None
 
-    def create(self, validate_data):
-        #owner and commentfeed are foreign key fields
-        #get them with the uuid given as string in
-        #owner_uuid and commentfeed_uuid
-        owner_uuid = validate_data.pop('owner_uuid')
-        commentfeed_uuid = validate_data.pop('commentfeed_uuid')
 
-        try:
-            owner = Sub.objects.get(uuid=owner_uuid)
-            commentfeed = CommentFeed.objects.get(uuid=commentfeed_uuid)
-
-            fk_fields = {
-                'owner': owner,
-                'commentfeed': commentfeed
-            }
-
-        except (Sub.DoesNotExist, CommentFeed.DoesNotExist):
-            return None
-        
-        else:
-            comment =  Comment.objects.create(**validate_data, **fk_fields)
-            return comment
+class OriginalCommentSerializer(BaseCommentSerializer):
+    '''serializer for every comment that is supposed to be original'''
     
-    def update(self, instance, validate_data):
-        #likes and reports dont't need to be provided they are optional
-        #all other write fields don't change the instance provided
-        #to the serializer
-
-        #first check that owner_uuid and commentfeed_uuid
-        #are the same as instance.owner.uuid and instance.commentfeed.uuid
-
-        owner_uuid = validate_data.pop('owner_uuid')
-        commentfeed_uuid = validate_data.pop('commentfeed_uuid')
-
-        valid_owner = owner_uuid == str(instance.owner.uuid)
-        valid_commentfeed = commentfeed_uuid == str(instance.commentfeed.uuid)
-
-        if valid_owner and valid_commentfeed:
-            instance.text = validate_data['text']
-
-            if validate_data['likes']:
-                instance.likes = validate_data['likes']
-            
-            if validate_data['reports']:
-                instance.reports = validate_data['reports']
-
-            instance.save()
-
-            return instance
+    #write only fields
+    post_uuid = serializers.CharField(write_only=True, allow_null=True, default=None)
+    
+    class Meta:
+        model = Comment
+        fields = base_fields.copy()
+        fields.append('post_uuid')
+        extra_kargs = base_extra_kwargs
+    
+    def create(self, validated_data):
         
+        puuid = validated_data.pop('post_uuid')
+        owuuid = validated_data.pop('owner_uuid')
+        
+        if puuid == None or owuuid == None:
+            raise Exception("please provide both uuid's for owner and post")
         else:
-            return None
+        
+            post = Post.objects.get(uuid=puuid)
+            commentfeed = CommentFeed.objects.create(post=post)
+            
+            session_sub = Sub.objects.get(uuid=owuuid)
+            
+            validated_data['commentfeed'] = commentfeed
+            validated_data['owner'] = session_sub
+            validated_data['is_original'] = True
+            
+            return Comment.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        #permissions should handle who can make updates
+        
+        puuid = validated_data.pop('post_uuid')
+        owuuid = validated_data.pop('owner_uuid')
+        
+        if puuid != None or owuuid != None:
+            raise Exception("owner_uuid and post_uuid must be None when updating")
+        else:
+            if instance.text != validated_data['text']:
+                instance.text = validated_data['text']
+            
+            try:
+                new_likes = validated_data['likes']
+            except KeyError:
+                pass
+            else:
+                instance.likes = new_likes
+            
+            try:
+                new_reports = validated_data['reports']
+            except KeyError:
+                pass
+            else:
+                instance.reports = new_reports
+            
+            instance.save()
+            return instance
+
+
+class ChildCommentSerializer(BaseCommentSerializer):
+    '''serializer for all children comments'''
+    
+    #write only fields
+    commentfeed_uuid = serializers.CharField(
+        write_only=True,
+        allow_null=True,
+        default=None
+    )
+    parent_uuid = serializers.CharField(write_only=True, allow_null=True, default=None)
+    
+    class Meta:
+        model = Comment
+        fields = base_fields.copy()
+        fields.append('commentfeed_uuid')
+        fields.append('parent_uuid')
+        extra_kargs = base_extra_kwargs
+    
+    def create(self, validated_data):
+        owuuid = validated_data.pop('owner_uuid')
+        cfuuid = validated_data.pop('commentfeed_uuid')
+        pauuid = validated_data.pop('parent_uuid')
+        
+        if owuuid == None or cfuuid == None:
+            raise Exception("uuid for owner and commentfeed have to be provided")
+        else:
+        
+            session_sub = Sub.objects.get(uuid=owuuid)
+            commentfeed = CommentFeed.objects.get(uuid=cfuuid)
+            
+            if pauuid != None:
+                parent_comment = Comment.objects.get(uuid=pauuid)
+                validated_data['parent_comment'] = parent_comment
+                validated_data['has_parent'] = True
+            else:
+                validated_data['has_parent'] = False
+                #comment model by default sets parent_comment as None
+                #so there is not need to provide it
+            
+            validated_data['owner'] = session_sub
+            validated_data['commentfeed'] = commentfeed
+            validated_data['is_original'] = False
+            
+            return Comment.objects.create(**validated_data)
+    
+    def update(self, instance, validated_data):
+        
+        owuuid = validated_data.pop('owner_uuid')
+        cfuuid = validated_data.pop('commentfeed_uuid')
+        pauuid = validated_data.pop('parent_uuid')
+        
+        if owuuid != None or cfuuid != None or pauuid != None:
+            print("when updating all owner uuid commentfeed uuid and/n")
+            print("parent uuid fields must be None")
+            raise ValueError
+        else:
+            if instance.text != validated_data['text']:
+                instance.text = validated_data['text']
+            
+            try:
+                new_likes = validated_data['likes']
+            except KeyError:
+                pass
+            else:
+                instance.likes = new_likes
+            
+            try:
+                new_reports = validated_data['reports']
+            except KeyError:
+                pass
+            else:
+                instance.reports = new_reports
+            
+            instance.save()
+            return instance
