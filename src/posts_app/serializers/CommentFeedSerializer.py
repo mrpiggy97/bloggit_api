@@ -3,7 +3,8 @@
 from rest_framework import serializers
 
 from posts_app.models import Post, CommentFeed
-from posts_app.serializers.CommentSerializer import CommentSerializer
+from posts_app.serializers.CommentSerializer import (OriginalCommentSerializer,
+                                                     ChildCommentSerializer)
 
 class CommentFeedSerializer(serializers.ModelSerializer):
     '''serializer for CommentFeed model'''
@@ -27,10 +28,10 @@ class CommentFeedSerializer(serializers.ModelSerializer):
         if self.context:
             session_sub = self.context['session_sub']
             context = {'session_sub': session_sub}
-            return CommentSerializer(comment, context=context).data
+            return OriginalCommentSerializer(comment, context=context).data
         
         else:
-            return CommentSerializer(comment).data
+            return OriginalCommentSerializer(comment, context=None).data
     
     def get_children_comments(self, obj):
         #get all comments that have is_original is False
@@ -40,10 +41,10 @@ class CommentFeedSerializer(serializers.ModelSerializer):
         if self.context:
             session_sub = self.context['session_sub']
             context = {'session_sub': session_sub}
-            return CommentSerializer(comments, context=context, many=True).data
+            return ChildCommentSerializer(comments, context=context, many=True).data
         
         else:
-            return CommentSerializer(comments, many=True).data
+            return ChildCommentSerializer(comments, context=None, many=True).data
     
     def create(self, validate_data):
         try:
