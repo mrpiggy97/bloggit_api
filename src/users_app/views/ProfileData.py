@@ -6,7 +6,8 @@ from rest_framework import status
 
 from posts_app.models import Post, Comment
 from posts_app.serializers.PostSerializer import PostSerializer
-from posts_app.serializers.CommentSerializer import CommentSerializer
+from posts_app.serializers.CommentSerializer import (OriginalCommentSerializer,
+                                                     ChildCommentSerializer)
 
 from users_app.models import Sub
 
@@ -36,7 +37,12 @@ class ProfileData(APIView):
         context = self.get_serializer_context()
 
         posts = PostSerializer(posts_query, context=context, many=True).data
-        comments = CommentSerializer(comments_query, context=context, many=True).data
+        comments1 = Comment.objects.filter(is_original=True).order_by('-id')
+        comments2 = Comment.objects.filter(is_original=False).order_by('-id')
+        originals = OriginalCommentSerializer(comments1, context=context, many=True).data
+        children = ChildCommentSerializer(comments2, context=context, many=True).data
+        comments = originals + children
+        comments.sort(key=lambda Comment: Comment.id)
         communities = profile_sub.get_communities_as_list
 
         data = {
