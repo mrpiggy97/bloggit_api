@@ -3,9 +3,9 @@
 from django.urls import path
 from .views.PostView import PostView
 from .views.PostsByCommunity import PostsByCommunity
-from .views.CommentView import CommentView
 from .views.SearchView import SearchView
 from .views.GenericListAPIViews import HomeView, PopularInCommunity
+from .views.CommentView import CommentView
 
 app_name = 'posts_app'
 urlpatterns = [
@@ -25,14 +25,23 @@ urlpatterns = [
     #most popular posts in community url
     path('most-popular/<slug:community_slug>/', PopularInCommunity.as_view(),
          name='most_popular'),
-    #get-comment url
-    path('get-comment/<uuid:comment_uuid>/', CommentView.as_view(), name='get_comment'),
-    #edit-comment url
-    path('edit-comment/<uuid:comment_uuid>/',  CommentView.as_view(), name='edit_comment'),
-    #make-comment url
-    path('make-comment/', CommentView.as_view(), name='make_comment'),
-    #delete-comment url
-    path('delete-comment/<uuid:comment_uuid>/', CommentView.as_view(), name='delete_comment'),
     #search-view
     path('search/<str:query>/', SearchView.as_view(), name='search'),
+    #get-comment url
+    path('get-comment/<str:comment_uuid>/', CommentView.as_view(), name='get-comment'),
+    #make-original-comment url
+    path('make-original-comment/', CommentView.as_view(),
+         {'is_original': True}, name='make_original_comment'),
+    #make-child-comment url
+    path('make-child-comment/', CommentView.as_view(),
+         {'is_original': False}, name='make_child_comment'),
+    #update-original-comment url
+    path('update-original-comment/', CommentView.as_view(),
+         {'is_original': True}, name='update_original_comment'),
+    #update-child-comment url
+    path('update-child-comment/', CommentView.as_view(),
+         {'is_original': False}, name='update_child_comment'),
+    #delete-comment url
+    path('delete-comment/<str:comment_uuid>/', CommentView.as_view(),
+         name='delete_comment'),
 ]
