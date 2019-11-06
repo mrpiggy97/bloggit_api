@@ -1,94 +1,99 @@
-#retrieve update, create and update a comment object
+from django.http import Http404
 
-from rest_framework.views import APIView
+from rest_framework.views import View
 from rest_framework.response import Response
 from rest_framework import status
 
-from posts_app.models import Comment, CommentFeed
-from posts_app.serializers.CommentSerializer import CommentSerializer
+from posts_app.models import Post, Comment
+from posts_app.serializers.CommentSerializer import (OriginalCommentSerializer,
+                                                     ChildCommentSerializer)
 
 from users_app.models import Sub
 
 from bloggit_project.utils.authentication import CustomJSONWebTokenAuthentication
 from bloggit_project.utils.permissions import ReadOrOwnerOnly
-import json
 
-class CommentView(APIView):
-    '''retrieve update create and delete comment'''
-
-    serializer = CommentSerializer
-    permission_classes = (ReadOrOwnerOnly,)
+class CommentView(View):
+    
+    original_serializer = OriginalCommentSerializer
+    child_serializer = ChildCommentSerializer
     authentication_classes = (CustomJSONWebTokenAuthentication,)
-
+    permission_classes = (ReadOrOwnerOnly,)
+    
     def get_object(self):
-        uuid = self.kwargs['comment_uuid']
+        
+        comment_uuid = self.kwargs['comment_uuid']
         
         try:
-            comment = Comment.objects.get(uuid=uuid)
+            comment = Comment.objects.get(uuid=comment_uuid)
         
         except Comment.DoesNotExist:
-            return Response(data=None, status=status.HTTP_404_NOT_FOUND)
-        
+            status_code = status.HTTP_404_NOT_FOUND
+            return Response(data=None, status=status_code)
         else:
             self.check_object_permissions(self.request, comment)
             return comment
     
     def get_serializer_context(self):
-
+        
         if self.request.user.is_authenticated:
             session_sub = Sub.objects.get(user=self.request.user)
             return {'session_sub': session_sub}
-        
-        elif self.request.user.is_anonymous:
+        else:
             return None
     
     def get(self, request, *args, **kwargs):
-        '''get comment'''
-
+        
         comment = self.get_object()
         context = self.get_serializer_context()
-        data = self.serializer(comment, context=context).data
-        data['authenticated'] = request.user.is_authenticated
+        
+        if comment.is_original:
+            serializer = OriginalCommentSerializer
+        else:
+            serializer = ChildCommentSerializer
+        
         status_code = status.HTTP_200_OK
+        return Response(data=serializer.data, status=status_code)
 
-        return Response(data=data, status=status_code)
-    
     def post(self, request, *args, **kwargs):
-        session_sub = Sub.objects.get(user=request.user)
-        data = request.POST['data']
-        data['owner_uuid'] = str(session_sub.uuid)
+        
+        data = request.POST.get('data')
         context = self.get_serializer_context()
-        serializer = self.serializer(data=data, context=context)
+        
+        if kwargs.get('is_original') == True:
+            serializer = OriginalCommentSerializer(data=data, context=context)
+        else:
+            serializer = ChildCommentSerializer(data=data, context=context)
+        
         if serializer.is_valid():
             serializer.save()
-            data = serializer.data
             status_code = status.HTTP_201_CREATED
-
-            return Response(data=data, status=status_code)
+            return Response(data=serializer.data, status=status_code)
         else:
-            return Response(data=None, status=status.HTTP_400_BAD_REQUEST)
+            status_code = status.HTTP_400_BAD_REQUEST
+            return Response(data=None, status=status_code)
     
     def put(self, request, *args, **kwargs):
-        '''update comment instance'''
-        session_sub = Sub.objects.get(user=request.user)
-        comment = self.get_object()
-        context = self.get_serializer_context()
+        
         data = request.data
-        data['owner_uuid'] = str(session_sub.uuid)
-        serializer = self.serializer(comment, data=data, context=context)
+        comment = self.get_object()
+        
+        if kwargs.get('is_original') == True:
+            serializer = OriginalCommentSerializer(comment, data=data)
+        else:
+            serializer = ChildCommentSerializer(comment, data=data)
+        
         if serializer.is_valid():
             serializer.save()
-            data = serializer.data
             status_code = status.HTTP_200_OK
-
-            return Response(data=data, status=status_code)
+            return Response(data=serializer.data, status=status_code)
         else:
-            return Response(data=None, status=status.HTTP_400_BAD_REQUEST)
+            status_code = status.HTTP_400_BAD_REQUEST
+            return Response(data=None, status=status_code)
     
     def delete(self, request, *args, **kwargs):
-        '''delete comment'''
-
+        
         comment = self.get_object()
         comment.delete()
-        return Response(data=None, status=status.HTTP_200_OK)
-            
+        status_code = status.HTTP_200_OK
+        return Response(data=None, status=status_code)
