@@ -6,7 +6,8 @@ from rest_framework.test import APITestCase
 
 from posts_app.models import Post, CommentFeed, Comment
 from posts_app.serializers.CommentFeedSerializer import CommentFeedSerializer
-from posts_app.serializers.CommentSerializer import CommentSerializer
+from posts_app.serializers.CommentSerializer import (OriginalCommentSerializer,
+                                                     ChildCommentSerializer)
 
 from users_app.models import Sub
 
@@ -83,8 +84,8 @@ class TestCommentFeedSerializer(APITestCase):
 
         expected_data = {
             'uuid': str(self.commentfeed.uuid),
-            'original_comment': CommentSerializer(original_comment).data,
-            'children_comments': CommentSerializer(children_comments, many=True).data,
+            'original_comment': OriginalCommentSerializer(original_comment).data,
+            'children_comments': ChildCommentSerializer(children_comments, many=True).data,
         }
 
         serializer = self.serializer(self.commentfeed)
