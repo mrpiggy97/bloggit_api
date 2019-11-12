@@ -153,8 +153,7 @@ class ChildCommentSerializer(BaseCommentSerializer):
                 validated_data['has_parent'] = True
             else:
                 validated_data['has_parent'] = False
-                #comment model by default sets parent_comment as None
-                #so there is not need to provide it
+                validated_data['parent_comment'] = None
             
             validated_data['owner'] = session_sub
             validated_data['commentfeed'] = commentfeed
