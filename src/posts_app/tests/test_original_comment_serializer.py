@@ -47,6 +47,7 @@ class TestOriginalCommentSerializer(APITestCase):
         context = {'session_sub': self.sub}
         data2 = self.serializer(self.first_comment, context=context).data
         
+        self.assertIsNotNone(data1)
         self.assertEqual(data1, self.expected_data1)
         self.assertEqual(data2, self.expected_data2)
     
