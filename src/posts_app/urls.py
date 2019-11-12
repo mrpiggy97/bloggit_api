@@ -28,7 +28,7 @@ urlpatterns = [
     #search-view
     path('search/<str:query>/', SearchView.as_view(), name='search'),
     #get-comment url
-    path('get-comment/<str:comment_uuid>/', CommentView.as_view(), name='get-comment'),
+    path('get-comment/<str:comment_uuid>/', CommentView.as_view(), name='get_comment'),
     #make-original-comment url
     path('make-original-comment/', CommentView.as_view(),
          {'is_original': True}, name='make_original_comment'),
@@ -36,10 +36,10 @@ urlpatterns = [
     path('make-child-comment/', CommentView.as_view(),
          {'is_original': False}, name='make_child_comment'),
     #update-original-comment url
-    path('update-original-comment/', CommentView.as_view(),
+    path('edit-original-comment/<str:comment_uuid>/', CommentView.as_view(),
          {'is_original': True}, name='update_original_comment'),
     #update-child-comment url
-    path('update-child-comment/', CommentView.as_view(),
+    path('edit-child-comment/<str:comment_uuid>/', CommentView.as_view(),
          {'is_original': False}, name='update_child_comment'),
     #delete-comment url
     path('delete-comment/<str:comment_uuid>/', CommentView.as_view(),
