@@ -5,6 +5,7 @@ from rest_framework import status
 
 from django.contrib.auth.models import User
 
+from posts_app.models import Post
 from posts_app.tests.utils import create_post, create_sub, create_user
 
 import json
@@ -21,15 +22,18 @@ class TestEditPost(APITestCase):
 
         self.path = '/posts/edit-post/%s/' %(str(self.post.uuid))
         self.client = APIClient()
-        self.data = {
+        self.data = json.dumps({
             'title': 'edited title',
             'text': 'edited text',
-        }
+        })
+        self.data_type = 'application/json'
     
     def test_success_response(self):
 
         self.client.force_authenticate(self.user)
-        response = self.client.put(path=self.path, data=self.data, format='json')
+        response = self.client.put(path=self.path,
+                                   data=self.data,
+                                   content_type=self.data_type)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     
@@ -51,17 +55,20 @@ class TestEditPost(APITestCase):
         self.client.force_authenticate(user=new_user)
 
         #make call
-        response = self.client.put(path=self.path, data=self.data, format='json')
+        response = self.client.put(path=self.path,
+                                   data=self.data,
+                                   content_type=self.data_type)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_error_response_from_bad_data(self):
         #test http response given when serializer is not valid
 
-        bad_data = {
+        self.client.force_authenticate(self.post.owner.user)
+        bad_data = json.dumps({
             'title': 'new tle',
-        }
-
-        self.client.force_authenticate(user=self.post.owner.user)
-        response = self.client.put(path=self.path, data=bad_data, format='json')
+        })
+        response = self.client.put(path=self.path,
+                                   data=bad_data,
+                                   content_type=self.data_type)
 
         self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
