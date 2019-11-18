@@ -95,8 +95,11 @@ class PostView(APIView):
             status_code = status.HTTP_201_CREATED
             return Response(data=data, status=status_code)
         else:
-            status_code = status.HTTP_501_NOT_IMPLEMENTED
-            return Response(data=None, status=status_code)
+            status_code = status.HTTP_400_BAD_REQUEST
+            data = {
+                'message': 'invalid data'
+            }
+            return Response(data=data, status=status_code)
     
     def delete(self, request, *args, **kwargs):
         post = self.get_object()
