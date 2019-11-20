@@ -21,10 +21,10 @@ class TestRestAuthEndpoints(APITestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(**test_user_data)
-        self.login_url = "/rest-auth/login/"
-        self.logout_url = "/rest-auth/logout/"
-        self.register_url = "/register/"
-        self.password_reset_url = '/password-reset/'
+        self.login_url = "/api/v1/rest-auth/login/"
+        self.logout_url = "/api/v1/rest-auth/logout/"
+        self.register_url = "/api/v1/register/"
+        self.password_reset_url = '/api/v1/password-reset/'
         self.client = APIClient()
         self.data = {
             'username': test_user_data['username'],
