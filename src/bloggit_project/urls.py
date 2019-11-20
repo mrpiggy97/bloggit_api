@@ -26,14 +26,14 @@ from bloggit_project.utils.views import CustomPasswordResetView, CustomRegisterV
 schema_view = get_swagger_view(title='bloggit API')
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('rest-auth/', include('rest_auth.urls')),
-    path('register/', CustomRegisterView.as_view(), name='error'),
-    path('api-docs', schema_view),
-    path('posts/', include('posts_app.urls')),
-    path('users/', include('users_app.urls')),
-    path('password-reset/', CustomPasswordResetView.as_view(), name="password_reset"),
-    re_path(r'^password-reset/confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+    path('api/v1/admin/', admin.site.urls),
+    path('api/v1/rest-auth/', include('rest_auth.urls')),
+    path('api/v1/register/', CustomRegisterView.as_view(), name='error'),
+    path('api/v1/api-docs', schema_view),
+    path('api/v1/posts/', include('posts_app.urls')),
+    path('api/v1/users/', include('users_app.urls')),
+    path('api/v1/password-reset/', CustomPasswordResetView.as_view(), name="password_reset"),
+    re_path(r'^api/v1/password-reset/confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         PasswordResetConfirmView.as_view(),
         name='password_reset_confirm'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
