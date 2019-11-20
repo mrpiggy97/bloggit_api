@@ -17,7 +17,7 @@ class TestLikeComment(APITestCase):
         self.post = create_post(self.sub)
         self.comment = create_original_comment(self.post, self.sub)
         
-        self.path = '/users/like-comment/{0}/'.format(str(self.comment.uuid))
+        self.path = '/api/v1/users/like-comment/{0}/'.format(str(self.comment.uuid))
         self.client = APIClient()
     
     def test_success_response(self):

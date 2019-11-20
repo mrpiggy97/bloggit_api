@@ -16,7 +16,7 @@ class TestGetProfile(APITestCase):
       
       self.user = create_user()
       self.sub = create_sub(self.user)
-      self.path = '/users/profile/%s/' %(str(self.sub.uuid))
+      self.path = '/api/v1/users/profile/%s/' %(str(self.sub.uuid))
       self.client = APIClient()
       
       for n in range(0, 1):

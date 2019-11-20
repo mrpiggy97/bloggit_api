@@ -15,7 +15,7 @@ class TestReportPost(APITestCase):
         self.sub = create_sub(self.user)
         self.post = create_post(self.sub)
         
-        self.path = '/users/report-post/{0}/'.format(str(self.post.uuid))
+        self.path = '/api/v1/users/report-post/{0}/'.format(str(self.post.uuid))
         self.client = APIClient()
     
     def test_success_response(self):
