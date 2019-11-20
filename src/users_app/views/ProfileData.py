@@ -33,12 +33,12 @@ class ProfileData(APIView):
         #there is always supposed to be a sub object per user
         profile_sub = Sub.objects.get(uuid=uuid)
         posts_query = Post.objects.filter(owner=profile_sub).order_by('-id')
-        comments_query = Comment.objects.filter(owner=profile_sub).order_by('-id')
-        context = self.get_serializer_context()
-
-        posts = PostSerializer(posts_query, context=context, many=True).data
         comments1 = Comment.objects.filter(is_original=True).order_by('-id')
         comments2 = Comment.objects.filter(is_original=False).order_by('-id')
+        
+        context = self.get_serializer_context()
+        
+        posts = PostSerializer(posts_query, context=context, many=True).data
         originals = OriginalCommentSerializer(comments1, context=context, many=True).data
         children = ChildCommentSerializer(comments2, context=context, many=True).data
         comments = originals + children
