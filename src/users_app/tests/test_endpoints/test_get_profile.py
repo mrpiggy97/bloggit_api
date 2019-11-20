@@ -5,7 +5,8 @@ from rest_framework import status
 
 from posts_app.models import Post, Comment
 from posts_app.serializers.PostSerializer import PostSerializer
-from posts_app.serializers.CommentSerializer import CommentSerializer
+from posts_app.serializers.CommentSerializer import (OriginalCommentSerializer,
+                                                     ChildCommentSerializer)
 from posts_app.tests.utils import create_post, create_sub, create_user
 
 
@@ -37,14 +38,23 @@ class TestGetProfile(APITestCase):
     
     def get_comments(self, authenticated):
         
-        query = Comment.objects.filter(owner=self.sub).order_by('-id')
+        query_og = Comment.objects.filter(owner=self.sub,
+                                                   is_original=True).order_by('-id')
+        query_ch = Comment.objects.filter(owner=self.sub,
+                                                   is_original=False).order_by('-id')
         
         if authenticated == False:
             context = None
         else:
             context = {'session_sub': self.sub}
-        
-        comments = CommentSerializer(query, context=context, many=True).data
+            
+        original_comments = OriginalCommentSerializer(query_og,
+                                                      context=context,
+                                                      many=True).data
+        children_comments = ChildCommentSerializer(query_ch,
+                                                   context=context,
+                                                   many=True).data
+        comments = original_comments + children_comments
         
         return comments
     
