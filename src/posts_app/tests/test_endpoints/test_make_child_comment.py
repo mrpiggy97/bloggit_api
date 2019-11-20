@@ -25,7 +25,7 @@ class TestMakeChildComment(APITestCase):
             'text': 'this is a child comment'
         })
         self.data_type = 'application/json'
-        self.path = '/posts/make-child-comment/'
+        self.path = '/api/v1/posts/make-child-comment/'
     
     def test_success_response(self):
         self.client.force_authenticate(self.user)

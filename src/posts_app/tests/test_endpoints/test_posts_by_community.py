@@ -30,7 +30,7 @@ class TestPostsByCommunity(APITestCase):
         for post in Post.objects.all():
             post.communities.add('test')
         
-        self.path = '/posts/posts-by-community/%s/' %('test')
+        self.path = '/api/v1/posts/posts-by-community/%s/' %('test')
         self.client = APIClient()
         self.slug = 'test'
         self.serializer = PostSerializer

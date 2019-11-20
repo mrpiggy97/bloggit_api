@@ -11,7 +11,7 @@ class TestHomeView(APITestCase):
         
         self.user = create_user()
         self.sub = create_sub(self.user)
-        self.path = '/posts/?page=1'
+        self.path = '/api/v1/posts/?page=1'
         self.client = APIClient()
         
         for n in range(0, 50):

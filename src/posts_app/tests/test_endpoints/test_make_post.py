@@ -17,7 +17,7 @@ class TestMakePost(APITestCase):
         self.user = create_user()
         self.sub = create_sub(self.user)
 
-        self.path = '/posts/make-post/'
+        self.path = '/api/v1/posts/make-post/'
         self.client = APIClient()
         self.data = json.dumps({
             'title': 'this is a new post',

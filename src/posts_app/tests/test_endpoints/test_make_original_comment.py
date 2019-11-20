@@ -17,7 +17,7 @@ class TestMakeOriginalComment(APITestCase):
         self.post = create_post(self.sub)
         
         self.client = APIClient()
-        self.path = '/posts/make-original-comment/'
+        self.path = '/api/v1/posts/make-original-comment/'
         self.serializer = OriginalCommentSerializer
         self.data = json.dumps({
             'post_uuid': str(self.post.uuid),

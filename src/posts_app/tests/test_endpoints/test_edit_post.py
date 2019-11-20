@@ -20,7 +20,7 @@ class TestEditPost(APITestCase):
         self.sub = create_sub(self.user)
         self.post = create_post(self.sub)
 
-        self.path = '/posts/edit-post/%s/' %(str(self.post.uuid))
+        self.path = '/api/v1/posts/edit-post/%s/' %(str(self.post.uuid))
         self.client = APIClient()
         self.data = json.dumps({
             'title': 'edited title',

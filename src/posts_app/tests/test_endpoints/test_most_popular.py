@@ -16,7 +16,7 @@ class TestMostPopular(APITestCase):
         self.sub = create_sub(self.user)
         #every community created with create_post has a community called test
         #by default
-        self.path = '/posts/most-popular/{0}/'.format('test')
+        self.path = '/api/v1/posts/most-popular/{0}/'.format('test')
         self.client = APIClient()
         
         for n in range(0, 50):

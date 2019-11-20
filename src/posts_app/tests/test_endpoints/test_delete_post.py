@@ -15,7 +15,7 @@ class TestDeletePost(APITestCase):
         self.sub = create_sub(self.user)
         self.post = create_post(self.sub)
 
-        self.path = '/posts/delete-post/%s/' %(str(self.post.uuid))
+        self.path = '/api/v1/posts/delete-post/%s/' %(str(self.post.uuid))
         self.client = APIClient()
     
     def test_success_response(self):

@@ -28,8 +28,8 @@ class TestGetComment(APITestCase):
         self.child_serializer = ChildCommentSerializer
         
         self.client = APIClient()
-        self.path = '/posts/get-comment/%s/' %(str(self.original_comment.uuid))
-        self.path2 = '/posts/get-comment/%s/' %(str(self.child_comment.uuid))
+        self.path = '/api/v1/posts/get-comment/%s/' %(str(self.original_comment.uuid))
+        self.path2 = '/api/v1/posts/get-comment/%s/' %(str(self.child_comment.uuid))
         
     def test_get_original_comment(self):
         

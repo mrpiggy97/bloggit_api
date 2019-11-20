@@ -33,7 +33,7 @@ class TestSearch(APITestCase):
         self.post5.communities.add('navy', 'military')
 
         self.client = APIClient()
-        self.path = '/posts/search/{0}/'.format('undertaker wwe')
+        self.path = '/api/v1/posts/search/{0}/'.format('undertaker wwe')
         self.serializer = PostSerializer
     
     def test_success_response(self):

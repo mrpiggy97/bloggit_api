@@ -27,7 +27,7 @@ class TestEditChildComment(APITestCase):
             parent_comment=None
         )
         
-        self.path = '/posts/edit-child-comment/%s/' %(str(self.child_comment.uuid))
+        self.path = '/api/v1/posts/edit-child-comment/%s/' %(str(self.child_comment.uuid))
         self.data = json.dumps({
             'text': 'this is the edited comment'
         })

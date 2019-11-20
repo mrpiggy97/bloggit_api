@@ -20,7 +20,7 @@ class TestEditOriginalComment(APITestCase):
         self.original_comment = create_original_comment(self.post, self.sub)
         
         self.client = APIClient()
-        self.path = '/posts/edit-original-comment/%s/' %(str(self.original_comment.uuid))
+        self.path = '/api/v1/posts/edit-original-comment/%s/' %(str(self.original_comment.uuid))
         self.data = json.dumps({
             'text': 'this is the updated text'
         })
