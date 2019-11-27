@@ -33,3 +33,11 @@ def create_original_comment(post, owner):
         commentfeed=feed
     )
     return comment
+
+def  create_child_comment(commentfeed,  owner):
+    return Comment.objects.create(
+        owner=owner,
+        text="this is a child comment",
+        commentfeed=commentfeed,
+        is_original=False
+    )
