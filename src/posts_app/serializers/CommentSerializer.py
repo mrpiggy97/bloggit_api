@@ -8,11 +8,12 @@ from users_app.models import Sub
 
 base_fields = ['uuid',  'liked', 'reported', 'owner_uuid', 'has_parent',
         'is_original', 'parent_comment', 'text', 'likes', 'reports',
-        'date', 'pic', 'owner']
+        'date', 'pic', 'owner', 'id']
 
 base_extra_kwargs = {
     'has_parent': {'read_only': True},
     'is_original': {'read_only': True},
+    'id': {'read_only': True}
 }
         
 
