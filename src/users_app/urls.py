@@ -5,6 +5,8 @@ from django.urls import path
 from .views.CommunitiesFollowed import CommunitiesFollowed
 from .views.ProfileData  import ProfileData
 from .views.LikesReports import like_post, like_comment, report_post, report_comment
+from .views.SubPosts import SubPosts
+from .views.SubComments import SubComments
 
 app_name = 'users_app'
 
@@ -24,4 +26,8 @@ urlpatterns = [
     path('report-post/<uuid:post_uuid>/', report_post, name='report_post'),
     #report-comment url
     path('report-comment/<uuid:comment_uuid>/', report_comment, name='report_comment'),
+    #sub-posts
+    path('sub-posts/<str:sub_uuid>/', SubPosts.as_view(), name='sub_posts'),
+    #sub-comments url
+    path('sub-comments/<str:sub_uuid>/', SubComments.as_view(), name='sub_comments'),
 ]
