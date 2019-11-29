@@ -28,7 +28,7 @@ class Sub(models.Model):
         return self.user.username
     
     @property
-    def get_profile_pic(self):
+    def get_profile_pic_url(self):
         if self.profile_pic and hasattr(self.profile_pic, 'url'):
             return self.profile_pic.url
         else:
