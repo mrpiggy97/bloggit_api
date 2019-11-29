@@ -7,6 +7,7 @@ from .views.ProfileData  import ProfileData
 from .views.LikesReports import like_post, like_comment, report_post, report_comment
 from .views.SubPosts import SubPosts
 from .views.SubComments import SubComments
+from .views.ProfileInfo import ProfileInfo
 
 app_name = 'users_app'
 
@@ -15,7 +16,7 @@ urlpatterns = [
     path('subscribe/<slug:community_slug>/', CommunitiesFollowed.as_view(),
                                                 name='subscribe'),
     #unsubscribe url
-    path('unsubscribe/<slug:community_slug>', CommunitiesFollowed.as_view(),
+    path('unsubscribe/<slug:community_slug>/', CommunitiesFollowed.as_view(),
                                                 name='unsubscribe'),
     path('profile/<uuid:sub_uuid>/', ProfileData.as_view(), name='profile'),
     #like-post url
@@ -30,4 +31,6 @@ urlpatterns = [
     path('sub-posts/<str:sub_uuid>/', SubPosts.as_view(), name='sub_posts'),
     #sub-comments url
     path('sub-comments/<str:sub_uuid>/', SubComments.as_view(), name='sub_comments'),
+    #profile-info url
+    path('profile-info/', ProfileInfo.as_view(), name='profile_info'),
 ]
