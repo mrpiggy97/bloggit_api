@@ -9,9 +9,9 @@ from users_app.models import Sub
 
 from bloggit_project.utils.authentication import CustomJSONWebTokenAuthentication
 from bloggit_project.utils.pagination import CustomPagination
+from bloggit_project.utils.permissions import ReadOnly
 
 from taggit.models import Tag
-
 
 
 class PostsByCommunity(APIView):
@@ -20,6 +20,7 @@ class PostsByCommunity(APIView):
     serializer = PostSerializer
     authentication_classes = (CustomJSONWebTokenAuthentication,)
     paginator = CustomPagination()
+    permission_classes = (ReadOnly,)
 
     def check_if_subscribed(self):
         slug = self.kwargs['community_slug']
