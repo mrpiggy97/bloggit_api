@@ -9,6 +9,7 @@ from users_app.models import Sub
 
 from bloggit_project.utils.authentication import CustomJSONWebTokenAuthentication
 from bloggit_project.utils.pagination import CustomPagination
+from bloggit_project.utils.permissions import ReadOnly
 
 from taggit.models import Tag
 
@@ -21,6 +22,7 @@ class GenericListAPIView(ListAPIView):
     serializer = PostSerializer
     authentication_classes = (CustomJSONWebTokenAuthentication,)
     paginator = CustomPagination()
+    permission_classes = (ReadOnly,)
     
     def get_serializer_context(self):
         if self.request.user.is_authenticated:
