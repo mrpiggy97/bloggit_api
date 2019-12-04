@@ -1,6 +1,4 @@
 #return a query based on request.data
-from django.db.models import Q
-
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -13,10 +11,9 @@ from users_app.models import Sub
 from bloggit_project.utils.authentication import CustomJSONWebTokenAuthentication
 from bloggit_project.utils.pagination import CustomPagination
 from bloggit_project.utils.search_for_posts import search_for_posts
+from bloggit_project.utils.permissions import ReadOnly
 
 from taggit.models import Tag
-
-
 
 class SearchView(ListAPIView):
     '''return a query based on data sent by request'''
@@ -24,6 +21,11 @@ class SearchView(ListAPIView):
     authentication_classes = (CustomJSONWebTokenAuthentication,)
     serializer = PostSerializer
     paginator = CustomPagination()
+    permission_classes = (ReadOnly,)
+    
+    def get_queryset(self):
+        queryset = search_for_posts(self.kwargs.get('query'))
+        return queryset
     
     def get_serializer_context(self):
 
@@ -37,12 +39,11 @@ class SearchView(ListAPIView):
     
     def list(self, request, *args, **kwargs):
 
-        queryset = search_for_posts(kwargs['query'])
+        queryset = self.get_queryset()
         context = self.get_serializer_context()
 
         results = self.paginator.paginate_queryset(queryset, request)
         posts = self.serializer(results, context=context, many=True).data
         data = self.paginator.get_paginated_data(posts, request)
         status_code = status.HTTP_200_OK
-
         return Response(data=data, status=status_code)
