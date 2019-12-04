@@ -3,16 +3,15 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 from posts_app.models import Post, Comment
 
 from users_app.models import Sub
 
-from bloggit_project.utils.permissions import AuthenticatedAndOwnerOnly
-
 
 @api_view(["PUT"])
-@permission_classes([AuthenticatedAndOwnerOnly])
+@permission_classes([IsAuthenticated])
 def like_post(request, post_uuid):
     '''increase post likes and add'''
     '''post uuid to sub.liked_posts'''
@@ -37,7 +36,7 @@ def like_post(request, post_uuid):
 
 
 @api_view(["PUT"])
-@permission_classes([AuthenticatedAndOwnerOnly])
+@permission_classes([IsAuthenticated])
 def like_comment(request, comment_uuid):
     '''increase comment likes and add'''
     '''comment uuid to sub.liked_comments'''
@@ -62,7 +61,7 @@ def like_comment(request, comment_uuid):
 
 
 @api_view(["PUT"])
-@permission_classes([AuthenticatedAndOwnerOnly])
+@permission_classes([IsAuthenticated])
 def report_post(request, post_uuid):
     '''increase post.likes and add its'''
     '''uuid to sub.reported_posts'''
@@ -85,7 +84,7 @@ def report_post(request, post_uuid):
 
 
 @api_view(["PUT"])
-@permission_classes([AuthenticatedAndOwnerOnly])
+@permission_classes([IsAuthenticated])
 def report_comment(request, comment_uuid):
     '''increase comment.reports number and add'''
     '''its uuid to sub.reported_comments'''
