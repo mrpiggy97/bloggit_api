@@ -45,7 +45,7 @@ class Post(models.Model):
         #get profile picture url from sub.profile_picture
 
         if self.owner:
-            return self.owner.get_profile_pic
+            return self.owner.get_profile_pic_url
         else:
             return None
     
@@ -129,7 +129,7 @@ class Comment(models.Model):
     @property
     def get_pic(self):
         if self.owner:
-            return self.owner.get_profile_pic
+            return self.owner.get_profile_pic_url
         else:
             return None
     
