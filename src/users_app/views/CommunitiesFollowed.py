@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_202_ACCEPTED, HTTP_404_NOT_FOUND
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 
 from users_app.models import Sub
 
@@ -14,7 +14,7 @@ from taggit.models import Tag
 
 class CommunitiesFollowed(APIView):
     '''endpoint to add and remove communities from Sub.communities'''
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
 
     def get_object(self):
 
@@ -27,6 +27,7 @@ class CommunitiesFollowed(APIView):
             return Response(data=None, status=HTTP_404_NOT_FOUND)
         
         else:
+            self.check_object_permissions(self.request, community)
             return community
 
     def put(self, request, *args, **kwargs):
