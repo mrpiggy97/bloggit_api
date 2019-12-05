@@ -1,4 +1,4 @@
-from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -14,7 +14,7 @@ from bloggit_project.utils.permissions import ReadOnly
 from taggit.models import Tag
 
 
-class PostsByCommunity(APIView):
+class PostsByCommunity(ListAPIView):
     '''return posts related to a specific community(tag)'''
 
     serializer = PostSerializer
@@ -61,7 +61,7 @@ class PostsByCommunity(APIView):
         elif self.request.user.is_anonymous:
             return None
     
-    def get(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         '''override list method from ListAPIView'''
 
         queryset = self.get_queryset()
