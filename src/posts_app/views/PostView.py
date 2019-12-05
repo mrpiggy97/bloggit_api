@@ -9,14 +9,14 @@ from posts_app.serializers.CommentFeedSerializer import CommentFeedSerializer
 from users_app.models import Sub
 
 from bloggit_project.utils.authentication import CustomJSONWebTokenAuthentication
-from bloggit_project.utils.permissions import ReadOrOwnerOnly
+from bloggit_project.utils.permissions import AuthenticatedReadAndOwnerOnly
 import json
 
 
 class PostView(APIView):
     '''generic class'''
 
-    permission_classes = (ReadOrOwnerOnly,)
+    permission_classes = (AuthenticatedReadAndOwnerOnly,)
     authentication_classes = (CustomJSONWebTokenAuthentication,)
     post_serializer = PostSerializer
     commentfeed_serializer = CommentFeedSerializer

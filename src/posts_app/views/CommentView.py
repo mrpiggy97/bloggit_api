@@ -11,14 +11,14 @@ from posts_app.serializers.CommentSerializer import (OriginalCommentSerializer,
 from users_app.models import Sub
 
 from bloggit_project.utils.authentication import CustomJSONWebTokenAuthentication
-from bloggit_project.utils.permissions import ReadOrOwnerOnly
+from bloggit_project.utils.permissions import AuthenticatedReadAndOwnerOnly
 
 class CommentView(APIView):
     
     original_serializer = OriginalCommentSerializer
     child_serializer = ChildCommentSerializer
     authentication_classes = (CustomJSONWebTokenAuthentication,)
-    permission_classes = (ReadOrOwnerOnly,)
+    permission_classes = (AuthenticatedReadAndOwnerOnly,)
     
     def get_object(self):
         
