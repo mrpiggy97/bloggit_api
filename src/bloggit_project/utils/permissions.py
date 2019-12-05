@@ -4,7 +4,7 @@ from rest_framework import permissions
 
 from users_app.models import Sub
 
-class ReadOrOwnerOnly(permissions.BasePermission):
+class AuthenticatedReadAndOwnerOnly(permissions.BasePermission):
     '''allow only safe methods or the owner of the object'''
 
     def has_permission(self, request, view):
