@@ -22,26 +22,8 @@ class ReadOrOwnerOnly(permissions.BasePermission):
             return True
 
 
-class AuthenticatedAndOwnerOnly(permissions.BasePermission):
-    
+class ReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
-        authenticated = request.user.is_authenticated
-        methods_allowed = ["POST", "PUT", "DELETE"]
-        
-        if authenticated == True and request.method in methods_allowed:
-            return True
-        else:
-            return False
-    
+        return request.method == "GET"
     def has_object_permission(self, request, view, obj):
-        return request.user == obj.owner.user
-
-class SessionSubOnly(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user.is_authenticated
-    def has_object_permission(self, request, view, obj):
-        if request.user.is_authenticated:
-            session_sub = Sub.objects.get(user=request.user)
-            return session_sub == obj
-        else:
-            return False
+        return request.method == "GET"
