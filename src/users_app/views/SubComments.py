@@ -10,13 +10,13 @@ from users_app.models import Sub
 
 from bloggit_project.utils.authentication import CustomJSONWebTokenAuthentication
 from bloggit_project.utils.pagination import CustomPagination
-from bloggit_project.utils.permissions import ReadOrOwnerOnly
+from bloggit_project.utils.permissions import  ReadOnly
 
 from collections import OrderedDict
 class SubComments(ListAPIView):
     
     authentication_classes = (CustomJSONWebTokenAuthentication,)
-    permission_classes = (ReadOrOwnerOnly,)
+    permission_classes = (ReadOnly,)
     og_serializer = OriginalCommentSerializer
     ch_serializer = ChildCommentSerializer
     paginator = CustomPagination()

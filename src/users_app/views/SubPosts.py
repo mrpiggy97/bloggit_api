@@ -9,12 +9,12 @@ from users_app.models import Sub
 
 from bloggit_project.utils.pagination import CustomPagination
 from bloggit_project.utils.authentication import CustomJSONWebTokenAuthentication
-from bloggit_project.utils.permissions import ReadOrOwnerOnly
+from bloggit_project.utils.permissions import ReadOnly
 
 class SubPosts(ListAPIView):
     serializer = PostSerializer
     authentication_classes = (CustomJSONWebTokenAuthentication,)
-    permission_classes = (ReadOrOwnerOnly,)
+    permission_classes = (ReadOnly,)
     paginator = CustomPagination()
     
     def get_queryset(self):
