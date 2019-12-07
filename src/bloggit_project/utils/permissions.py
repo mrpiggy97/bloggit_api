@@ -5,7 +5,9 @@ from rest_framework import permissions
 from users_app.models import Sub
 
 class AuthenticatedReadAndOwnerOnly(permissions.BasePermission):
-    '''allow only safe methods or the owner of the object'''
+    '''if its a read request than pass regardless if request'''
+    '''is authenticated or not, a post request must be authenticated'''
+    '''and to alter or delete an object only the owner will be allowed'''
 
     def has_permission(self, request, view):
         if request.method not in permissions.SAFE_METHODS:
