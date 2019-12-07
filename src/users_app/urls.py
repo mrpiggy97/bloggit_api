@@ -3,11 +3,10 @@
 from django.urls import path
 
 from .views.CommunitiesFollowed import CommunitiesFollowed
-from .views.ProfileData  import ProfileData
 from .views.LikesReports import like_post, like_comment, report_post, report_comment
 from .views.SubPosts import SubPosts
 from .views.SubComments import SubComments
-from .views.ProfileInfo import ProfileInfo
+from .views.ProfileInfo import profile_info
 
 app_name = 'users_app'
 
@@ -18,7 +17,6 @@ urlpatterns = [
     #unsubscribe url
     path('unsubscribe/<slug:community_slug>/', CommunitiesFollowed.as_view(),
                                                 name='unsubscribe'),
-    path('profile/<uuid:sub_uuid>/', ProfileData.as_view(), name='profile'),
     #like-post url
     path('like-post/<uuid:post_uuid>/', like_post, name='like_post'),
     #like-comment url
@@ -32,5 +30,5 @@ urlpatterns = [
     #sub-comments url
     path('sub-comments/<str:sub_uuid>/', SubComments.as_view(), name='sub_comments'),
     #profile-info url
-    path('profile-info/', ProfileInfo.as_view(), name='profile_info'),
+    path('profile-info/', profile_info, name='profile_info'),
 ]
