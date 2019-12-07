@@ -77,27 +77,27 @@ class CommentView(APIView):
             if kwargs.get('is_original') == True:
                 if data.get('post_uuid') == None or data.get('owner_uuid') == None:
                     status_code = status.HTTP_400_BAD_REQUEST
-                    data = {
+                    d = {
                         'message': 'you must provide post_uuid and owner_uuid'
                     }
-                    return Response(data=data, status=status_code)
+                    return Response(data=d, status=status_code)
             elif kwargs.get('is_original') == False:
                 if data.get('commentfeed_uuid') == None or data.get('owner_uuid') == None:
                     status_code = status.HTTP_400_BAD_REQUEST
-                    data = {
+                    d = {
                         'message': 'you must provide commentfeed_uuid and owner_uuid'
                     }
-                    return Response(data=data, status=status_code)
+                    return Response(data=d, status=status_code)
                 
             status_code = status.HTTP_201_CREATED
             serializer.save()
             return Response(data=serializer.data, status=status_code)
         else:
             status_code = status.HTTP_400_BAD_REQUEST
-            data = {
+            d = {
                 'message': self.get_invalid_message()
             }
-            return Response(data=data, status=status_code)
+            return Response(data=d, status=status_code)
     
     def put(self, request, *args, **kwargs):
         
@@ -113,29 +113,29 @@ class CommentView(APIView):
             
             if kwargs.get('is_original') == True:
                 if data.get('post_uuid') != None or data.get('owner_uuid') != None:
-                    data = {
+                    d = {
                         'message': 'post_uuid and owner_uuid must be None'
                     }
                     status_code = status.HTTP_400_BAD_REQUEST
-                    return Response(data=data, status=status_code)
+                    return Response(data=d, status=status_code)
                 
             elif kwargs.get('is_original') == False:
                 if data.get('commentfeed_uuid') != None or data.get('owner_uuid') != None:
-                    data = {
+                    d = {
                         'message': 'commentfeed_uuid and owner_uuid must be None'
                     }
                     status_code = status.HTTP_400_BAD_REQUEST
-                    return Response(data=data, status=status_code)
+                    return Response(data=d, status=status_code)
                 
             serializer.save()
             status_code = status.HTTP_200_OK
-            return Response(data=serializer.data, status=status_code)
+            return Response(data=None, status=status_code)
         else:
             status_code = status.HTTP_400_BAD_REQUEST
-            data = {
+            d = {
                 'message': self.get_invalid_message()
             }
-            return Response(data=data, status=status_code)
+            return Response(data=d, status=status_code)
     
     def delete(self, request, *args, **kwargs):
         

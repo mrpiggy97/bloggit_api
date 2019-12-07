@@ -45,6 +45,9 @@ class PostView(APIView):
         else:
             return None
     
+    def get_invalid_message(self):
+        return "sorry there was an error with the data provided"
+    
 
     def get(self, request, *args, **kwargs):
         '''return post object along with all commentfeeds related to it'''
@@ -67,39 +70,36 @@ class PostView(APIView):
         return Response(data=data, status=status_code)
     
     def put(self, request, *args, **kwargs):
-        session_sub = Sub.objects.get(user=request.user)
         post = self.get_object()
         data = request.data
-        data['owner_uuid'] = str(session_sub.uuid)
         context = self.get_serializer_context()
         serializer = self.post_serializer(post, data=data, context=context)
 
         if serializer.is_valid():
             serializer.save()
-            data = serializer.data
             status_code = status.HTTP_200_OK
-            return Response(data=data, status=status_code)
+            return Response(data=None, status=status_code)
         else:
-            return Response(data=None, status=status.HTTP_304_NOT_MODIFIED)
+            d = {
+                'message': self.get_invalid_message()
+            }
+            return Response(data=d, status=status.HTTP_400_BAD_REQUEST)
     
     def post(self, request, *args, **kwargs):
-        session_sub = Sub.objects.get(user=request.user)
         data = request.data
-        data['owner_uuid'] = str(session_sub.uuid)
         context = self.get_serializer_context()
         serializer = self.post_serializer(data=data, context=context)
         
         if serializer.is_valid():
             serializer.save()
-            data = serializer.data
             status_code = status.HTTP_201_CREATED
-            return Response(data=data, status=status_code)
+            return Response(data=serializer.data, status=status_code)
         else:
             status_code = status.HTTP_400_BAD_REQUEST
-            data = {
-                'message': 'invalid data'
+            d = {
+                'message': self.get_invalid_message()
             }
-            return Response(data=data, status=status_code)
+            return Response(data=d, status=status_code)
     
     def delete(self, request, *args, **kwargs):
         post = self.get_object()
