@@ -22,8 +22,12 @@ class TestMakePost(APITestCase):
         self.data = json.dumps({
             'title': 'this is a new post',
             'text': 'this is a new post',
-            'add_communities': ['test', 'first post']
+            'add_communities': ['test', 'first post'],
+            'owner_uuid': str(self.sub.uuid)
         })
+        self.invalid_data_response = {
+            'message': 'sorry there was an error with the data provided'
+        }
         self.data_type = 'application/json'
     
     def test_success_response(self):
@@ -62,9 +66,6 @@ class TestMakePost(APITestCase):
                                     content_type=self.data_type)
         
         status_code = status.HTTP_400_BAD_REQUEST
-        expected_data = {
-            'message': 'invalid data'
-        }
         self.assertEqual(response.status_code, status_code)
-        self.assertEqual(response.data, expected_data)
+        self.assertEqual(response.data, self.invalid_data_response)
         self.assertEqual(Post.objects.count(), 0)

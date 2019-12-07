@@ -25,7 +25,11 @@ class TestEditPost(APITestCase):
         self.data = json.dumps({
             'title': 'edited title',
             'text': 'edited text',
+            'owner_uuid': str(self.sub.uuid)
         })
+        self.invalid_data_response = {
+            'message': 'sorry there was an error with the data provided'
+        }
         self.data_type = 'application/json'
     
     def test_success_response(self):
@@ -71,4 +75,4 @@ class TestEditPost(APITestCase):
                                    data=bad_data,
                                    content_type=self.data_type)
 
-        self.assertEqual(response.status_code, status.HTTP_304_NOT_MODIFIED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
