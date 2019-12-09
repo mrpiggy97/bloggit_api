@@ -28,7 +28,7 @@ schema_view = get_swagger_view(title='bloggit API')
 urlpatterns = [
     path('api/v1/admin/', admin.site.urls),
     path('api/v1/rest-auth/', include('rest_auth.urls')),
-    path('api/v1/register/', CustomRegisterView.as_view(), name='error'),
+    path('api/v1/register/', CustomRegisterView.as_view(), name='register_v1'),
     path('api/v1/api-docs', schema_view),
     path('api/v1/posts/', include('posts_app.urls')),
     path('api/v1/users/', include('users_app.urls')),
