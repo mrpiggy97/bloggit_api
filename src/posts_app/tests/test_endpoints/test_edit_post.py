@@ -25,7 +25,9 @@ class TestEditPost(APITestCase):
         self.data = json.dumps({
             'title': 'edited title',
             'text': 'edited text',
-            'owner_uuid': str(self.sub.uuid)
+        })
+        self.bad_data = json.dumps({
+            'title': 'new tle',
         })
         self.invalid_data_response = {
             'message': 'sorry there was an error with the data provided'
@@ -41,7 +43,7 @@ class TestEditPost(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     
-    def test_error_response(self):
+    def test_error_response_from_permission(self):
         '''test if we are granted permission if a'''
         '''user other than post.owner tries to edit the post'''
 
@@ -68,11 +70,8 @@ class TestEditPost(APITestCase):
         #test http response given when serializer is not valid
 
         self.client.force_authenticate(self.post.owner.user)
-        bad_data = json.dumps({
-            'title': 'new tle',
-        })
         response = self.client.put(path=self.path,
-                                   data=bad_data,
+                                   data=self.bad_data,
                                    content_type=self.data_type)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

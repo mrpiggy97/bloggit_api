@@ -70,7 +70,7 @@ class TestPostSerializer(APITestCase):
         #test if data passed to serializer will be valid
 
         data = {
-            'owner_uuid': str(self.sub.uuid),
+            'user_id': self.user.id,
             'add_communities': ['testing', 'test'],
             'title': 'this is the title',
             'text': 'this is the text',
@@ -86,7 +86,7 @@ class TestPostSerializer(APITestCase):
         #object, remove_communities doesn't need to be provided but becasuse
         #we are testing update method directly we need to pass it
         data = {
-            'owner_uuid': str(self.sub.uuid),
+            'user_id': self.user.id,
             'title': 'this is a title',
             'text': 'this is the text',
             'add_communities': ['title', 'test', 'third tag'],
@@ -105,7 +105,7 @@ class TestPostSerializer(APITestCase):
         #this data is expected to work, it is supposed to represent validated
         #data
         data = {
-            'owner_uuid': str(self.post.owner.uuid),
+            'user_id': self.post.owner.user.id,
             'title': 'changed title',
             'text': 'changed text',
             'add_communities': None,
@@ -115,25 +115,62 @@ class TestPostSerializer(APITestCase):
         serializer = self.serializer(self.post)
 
         self.assertIsInstance(serializer.update(self.post, data), Post)
-
-        #this block will try to change self.post.owner unsuccessfuly
-
-        new_user = User.objects._create_user(
-            username="newusertestin",
-            password="newpasswoas222",
-            email="newemail@email.com"
-        )
-
-        new_sub = Sub.objects.create(user=new_user)
-
-        wrong_data = {
-            'title': 'should not work',
-            'text': 'should not work',
-            'owner_uuid': str(new_sub.uuid),
-            'add_communities': None,
-            'remove_communities': None
+    
+    def test_create_error_from_non_existing_user(self):
+        '''if no user in the app can get retrieved through'''
+        '''user_id then the serializer should throw an Execption'''
+        data = {
+            'title': 'this is the title',
+            'text': 'this is the text',
+            'add_communities': ['text'],
+            'user_id': 1000,
         }
-
-        serializer2 = self.serializer(self.post)
-
-        self.assertIsNone(serializer2.update(self.post, wrong_data))
+        
+        serializer = self.serializer(data=data)
+        if serializer.is_valid():
+            self.assertRaises(Exception,
+                              serializer.save)
+        
+        #no object should've been created so the count has to remain as 1
+        self.assertEqual(Post.objects.count(), 1)
+    
+    def test_create_error_from_non_existing_sub(self):
+        '''if for any reason no sub was created when a user has'''
+        '''the serializer then has to raise an expection as well'''
+        '''this is unlikely to happen since endpoint register_v1'''
+        '''specifically addresses this'''
+        
+        new_user = User.objects.create_user(
+            username='thisisntasda',
+            email='nodded@emailfake.com',
+            password='1343lskldfkop23'
+        )
+        
+        data = {
+            'title': 'this is the new title',
+            'text': 'this is the text',
+            'add_communities': ['test'],
+            'user_id': new_user.id
+        }
+        
+        serializer = self.serializer(data=data)
+        if serializer.is_valid():
+            self.assertRaises(Exception, serializer.save)
+    
+    def test_error_from_non_owner_trying_update(self):
+        new_user = User.objects.create_user(
+            username='thisisnqdad2432',
+            email='testingemail@test.com',
+            password='thisalkssld234'
+        )
+        new_sub = Sub.objects.create(user=new_user)
+        data = {
+            'title': 'this is the title',
+            'text': 'this is the text',
+            'user_id': new_user.id,
+            'add_communities': ['test']
+        }
+        serializer = self.serializer(self.post, data=data)
+        
+        if serializer.is_valid():
+            self.assertRaises(Exception, serializer.save)

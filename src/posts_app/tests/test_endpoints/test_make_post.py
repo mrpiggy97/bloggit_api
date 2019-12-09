@@ -23,12 +23,16 @@ class TestMakePost(APITestCase):
             'title': 'this is a new post',
             'text': 'this is a new post',
             'add_communities': ['test', 'first post'],
-            'owner_uuid': str(self.sub.uuid)
         })
         self.invalid_data_response = {
             'message': 'sorry there was an error with the data provided'
         }
         self.data_type = 'application/json'
+        self.invalid_data = json.dumps({
+            'tite': 'this is the title',
+            'text': 'this is the text',
+            'communities': ['test'],
+        })
     
     def test_success_response(self):
         #this is how a call should be valid
@@ -55,14 +59,9 @@ class TestMakePost(APITestCase):
     
     def test_response_from_invalid_data(self):
         self.client.force_authenticate(self.user)
-        invalid_data = json.dumps({
-            'tite': 'this is the title',
-            'text': 'this is the text',
-            'communities': ['test'],
-        })
         
         response = self.client.post(path=self.path,
-                                    data=invalid_data,
+                                    data=self.invalid_data,
                                     content_type=self.data_type)
         
         status_code = status.HTTP_400_BAD_REQUEST
