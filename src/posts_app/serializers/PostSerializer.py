@@ -1,4 +1,5 @@
 #serializer for Post model
+from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
@@ -21,7 +22,7 @@ class PostSerializer(serializers.ModelSerializer):
     reported = serializers.SerializerMethodField()
 
     #write only fields
-    owner_uuid = serializers.CharField(write_only=True)
+    user_id = serializers.IntegerField(write_only=True)
     add_communities = serializers.ListField(allow_null=True,
                                             default=None, write_only=True)
     
@@ -32,7 +33,7 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ['communities_list', 'owner', 'pic', 'date', 'uuid',
-                    'liked', 'reported', 'owner_uuid', 'add_communities',
+                    'liked', 'reported', 'user_id', 'add_communities',
                     'remove_communities', 'title', 'text', 'likes', 'reports']
 
     def get_liked(self, obj):
@@ -63,13 +64,15 @@ class PostSerializer(serializers.ModelSerializer):
         del validated_data['remove_communities']
         communities = validated_data.pop('add_communities')
         
-        #try to get sub from uuid goven in validated_data
+        #try to get user from user_id to then get the corresponding
+        #sub
         try:
-            owner = Sub.objects.get(uuid=validated_data.pop('owner_uuid'))
-        #if no sub has that uuid return None
-        except Sub.DoesNotExist:
-            return None
-        #else create a new post
+            user = User.objects.get(id=validated_data.pop('user_id'))
+            owner = Sub.objects.get(user=user)
+        except User.DoesNotExist as e:
+            raise Exception(e)
+        except Sub.DoesNotExist as e:
+            raise Exception(e)
         else:
             new_post = Post.objects.create(**validated_data, owner=owner)
 
@@ -80,9 +83,9 @@ class PostSerializer(serializers.ModelSerializer):
     
     def update(self, instance, validated_data):
 
-        uuid = validated_data.pop('owner_uuid')
+        usr_id = validated_data.pop('user_id')
 
-        if uuid == str(instance.owner.uuid):
+        if usr_id == instance.owner.user.id:
             instance.title = validated_data['title']
             instance.text = validated_data['text']
 
@@ -92,4 +95,5 @@ class PostSerializer(serializers.ModelSerializer):
             instance.save()
             return instance
         else:
-            return None
+            message = "user_id has to be the same as owner's user id"
+            raise Exception(message)
