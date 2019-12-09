@@ -72,6 +72,7 @@ class PostView(APIView):
     def put(self, request, *args, **kwargs):
         post = self.get_object()
         data = request.data
+        data['user_id'] = request.user.id
         context = self.get_serializer_context()
         serializer = self.post_serializer(post, data=data, context=context)
 
@@ -87,6 +88,7 @@ class PostView(APIView):
     
     def post(self, request, *args, **kwargs):
         data = request.data
+        data['user_id'] = request.user.id
         context = self.get_serializer_context()
         serializer = self.post_serializer(data=data, context=context)
         
