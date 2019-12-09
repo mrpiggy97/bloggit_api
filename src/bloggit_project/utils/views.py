@@ -36,7 +36,8 @@ class CustomPasswordResetView(GenericAPIView):
 
 class CustomRegisterView(RegisterView):
     '''create sub along with user'''
-    
+    #method overriden so a sub can be created when a user is created
+    #nothing is deleted or changed, only Sub.object.create was inserted
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
