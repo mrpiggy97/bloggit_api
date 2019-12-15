@@ -37,6 +37,7 @@ class TestChildCommentSerializer(APITestCase):
             'likes': self.child_comment.likes,
             'reports': self.child_comment.reports,
             'text': self.child_comment.text,
+            'id': self.child_comment.id
         }
         
         serializer_data = self.serializer(self.child_comment, context=None).data

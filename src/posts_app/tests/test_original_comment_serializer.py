@@ -32,6 +32,7 @@ class TestOriginalCommentSerializer(APITestCase):
             'text': self.first_comment.text,
             'likes': self.first_comment.likes,
             'reports': self.first_comment.reports,
+            'id': self.first_comment.id
         }
         
         self.expected_data2 = self.expected_data1.copy()
