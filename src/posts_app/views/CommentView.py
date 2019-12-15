@@ -65,6 +65,7 @@ class CommentView(APIView):
     def post(self, request, *args, **kwargs):
         
         data = request.data
+        data['user_id'] = request.user.id
         context = self.get_serializer_context()
         
         if kwargs.get('is_original') == True:
@@ -75,17 +76,17 @@ class CommentView(APIView):
         if serializer.is_valid():
             
             if kwargs.get('is_original') == True:
-                if data.get('post_uuid') == None or data.get('owner_uuid') == None:
+                if data.get('post_uuid') == None:
                     status_code = status.HTTP_400_BAD_REQUEST
                     d = {
-                        'message': 'you must provide post_uuid and owner_uuid'
+                        'message': 'you must provide post_uuid'
                     }
                     return Response(data=d, status=status_code)
             elif kwargs.get('is_original') == False:
-                if data.get('commentfeed_uuid') == None or data.get('owner_uuid') == None:
+                if data.get('commentfeed_uuid') == None:
                     status_code = status.HTTP_400_BAD_REQUEST
                     d = {
-                        'message': 'you must provide commentfeed_uuid and owner_uuid'
+                        'message': 'you must provide commentfeed_uuid'
                     }
                     return Response(data=d, status=status_code)
                 
@@ -102,6 +103,7 @@ class CommentView(APIView):
     def put(self, request, *args, **kwargs):
         
         data = request.data
+        data['user_id'] = request.user.id
         comment = self.get_object()
         
         if kwargs.get('is_original') == True:
@@ -110,19 +112,18 @@ class CommentView(APIView):
             serializer = ChildCommentSerializer(comment, data=data)
         
         if serializer.is_valid():
-            
             if kwargs.get('is_original') == True:
-                if data.get('post_uuid') != None or data.get('owner_uuid') != None:
+                if data.get('post_uuid') != None:
                     d = {
-                        'message': 'post_uuid and owner_uuid must be None'
+                        'message': 'post_uuid must be None'
                     }
                     status_code = status.HTTP_400_BAD_REQUEST
                     return Response(data=d, status=status_code)
                 
             elif kwargs.get('is_original') == False:
-                if data.get('commentfeed_uuid') != None or data.get('owner_uuid') != None:
+                if data.get('commentfeed_uuid') != None:
                     d = {
-                        'message': 'commentfeed_uuid and owner_uuid must be None'
+                        'message': 'commentfeed_uuid must be None'
                     }
                     status_code = status.HTTP_400_BAD_REQUEST
                     return Response(data=d, status=status_code)
