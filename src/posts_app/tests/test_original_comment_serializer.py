@@ -32,7 +32,6 @@ class TestOriginalCommentSerializer(APITestCase):
             'text': self.first_comment.text,
             'likes': self.first_comment.likes,
             'reports': self.first_comment.reports,
-            'id': self.first_comment.id
         }
         
         self.expected_data2 = self.expected_data1.copy()
@@ -57,14 +56,13 @@ class TestOriginalCommentSerializer(APITestCase):
         
         #this data should be valid
         data = {
-            'owner_uuid': str(self.sub.uuid),
+            'user_id': self.user.id,
             'post_uuid': str(self.post.uuid),
             'text': 'this is the second comment',
         }
         
-        #while this data might be valid its supposed to throw an error
         bad_data = {
-            'owner_uuid': None,
+            'user_id': None,
             'post_uuid': str(self.sub.uuid),
             'text': 'this is not supposed to work'
         }
@@ -80,7 +78,7 @@ class TestOriginalCommentSerializer(APITestCase):
         self.assertTrue(Comment.objects.count(), 2)
         
         serializer2 = self.serializer(data=bad_data, context=context)
-        self.assertTrue(serializer2.is_valid())
+        self.assertFalse(serializer2.is_valid())
         
         self.assertRaises(Exception, serializer2.create, bad_data)
     
@@ -88,11 +86,12 @@ class TestOriginalCommentSerializer(APITestCase):
         '''test update method from serializer'''
         
         data = {
+            'user_id': self.user.id,
             'text': 'this is the edited text'
         }
         
         bad_data = {
-            'owner_uuid': str(self.sub.uuid),
+            'user_id': None,
             'text': 'this is not supposed to work'
         }
         

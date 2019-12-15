@@ -45,6 +45,7 @@ class TestEditOriginalComment(APITestCase):
         self.assertEqual(response.status_code, status_code)
     
     def test_error_from_bad_data(self):
+        #when updating, post_uuid has to be None
         self.client.force_authenticate(self.user)
         bad_data = json.dumps({
             'post_uuid': str(self.post.uuid),
@@ -56,7 +57,7 @@ class TestEditOriginalComment(APITestCase):
                                    content_type=self.data_type)
         status_code = status.HTTP_400_BAD_REQUEST
         expected_data = {
-            'message': 'post_uuid and owner_uuid must be None'
+            'message': 'post_uuid must be None'
         }
         
         self.assertEqual(response.status_code, status_code)

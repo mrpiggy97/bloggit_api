@@ -37,7 +37,6 @@ class TestChildCommentSerializer(APITestCase):
             'likes': self.child_comment.likes,
             'reports': self.child_comment.reports,
             'text': self.child_comment.text,
-            'id': self.child_comment.id
         }
         
         serializer_data = self.serializer(self.child_comment, context=None).data
@@ -46,7 +45,7 @@ class TestChildCommentSerializer(APITestCase):
     def test_is_valid_and_create_without_parent(self):
         data = {
             'text': 'this is a new comment',
-            'owner_uuid': str(self.sub.uuid),
+            'user_id': self.sub.user.id,
             'commentfeed_uuid': str(self.commentfeed.uuid)
         }
         
@@ -72,7 +71,7 @@ class TestChildCommentSerializer(APITestCase):
         data = {
             'text': 'this comment will be a child',
             'commentfeed_uuid': str(self.commentfeed.uuid),
-            'owner_uuid': str(self.sub.uuid),
+            'user_id': self.sub.user.id,
             'parent_uuid': str(new_comment.uuid),
         }
         
@@ -85,15 +84,15 @@ class TestChildCommentSerializer(APITestCase):
         last_comment = Comment.objects.last()
         self.assertTrue(last_comment.has_parent)
     
-    
     def test_update(self):
         data = {
-            'text': 'this is the new text'
+            'text': 'this is the new text',
+            'user_id': self.sub.user.id
         }
         
         bad_data = {
             'text': 'this is not supposed to work',
-            'owner_uuid': str(self.sub.uuid)
+            'user_id': 100
         }
         
         new_comment = Comment.objects.create(

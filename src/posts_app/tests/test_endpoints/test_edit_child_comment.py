@@ -56,8 +56,7 @@ class TestEditChildComment(APITestCase):
     def test_error_from_bad_data(self):
         self.client.force_authenticate(self.user)
         bad_data = json.dumps({
-            'owner_uuid': str(self.sub.uuid),
-            'text': 'this is not supposed to work'
+            'text': None,
         })
         
         response = self.client.put(path=self.path,
@@ -66,7 +65,7 @@ class TestEditChildComment(APITestCase):
         
         status_code = HTTP_400_BAD_REQUEST
         expected_data = {
-            'message': 'commentfeed_uuid and owner_uuid must be None'
+            'message': 'invalid data'
         }
         self.assertEqual(response.status_code, status_code)
         self.assertEqual(response.data, expected_data)
