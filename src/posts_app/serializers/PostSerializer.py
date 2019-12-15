@@ -60,40 +60,65 @@ class PostSerializer(serializers.ModelSerializer):
     
 
     def create(self, validated_data):
-
+        #remove_communities, add_communities and user_id are fields
+        #that are not in Post model itself therefore they can't go into
+        #Post.objects.create() method so we will take them away from
+        #validated_data
+        
         del validated_data['remove_communities']
+        #communities are added to the model through the taggit api at the end
         communities = validated_data.pop('add_communities')
         
         #try to get user from user_id to then get the corresponding
-        #sub
+        #Sub model that will be the post owner
         try:
-            user = User.objects.get(id=validated_data.pop('user_id'))
-            owner = Sub.objects.get(user=user)
+            #user_id cannot be supplied by the front end, it should always
+            #be provided by the corresponding views that serves to create and
+            #update posts
+            usr_id = validated_data.pop('user_id')
+            user = User.objects.get(id=usr_id)
+            sub = Sub.objects.get(user=user)
         except User.DoesNotExist as e:
             raise Exception(e)
         except Sub.DoesNotExist as e:
             raise Exception(e)
         else:
-            new_post = Post.objects.create(**validated_data, owner=owner)
-
+            validated_data['owner'] = sub
+            new_post = Post.objects.create(**validated_data)
             if communities:
                 for com in communities:
                     new_post.communities.add(com)
             return new_post
     
     def update(self, instance, validated_data):
-
+        #user_id cannot be supplied by the front end, it shouold always be
+        #provided by the corresponding views that serves to
+        #update and create a post
         usr_id = validated_data.pop('user_id')
 
         if usr_id == instance.owner.user.id:
-            instance.title = validated_data['title']
-            instance.text = validated_data['text']
+            new_title = validated_data.get('title')
+            new_text = validated_data.get('text')
+            new_likes = validated_data.get('likes')
+            new_reports = validated_data.get('reports')
+            
+            if new_title != instance.title:
+                instance.title = new_title
+            
+            if new_text != instance.text:
+                instance.text = new_text
+            
+            if new_likes != instance.likes and new_likes != None:
+                instance.likes = new_likes
+            
+            if new_reports != instance.reports and new_reports != None:
+                instance.reports = new_reports
 
-            if validated_data['remove_communities']:
-                for com in validated_data['remove_communities']:
+            if validated_data.get('remove_communities'):
+                for com in validated_data.get('remove_communities'):
                     instance.communities.remove(com)
             instance.save()
             return instance
         else:
-            message = "user_id has to be the same as owner's user id"
+            message = "user_id cannot change"
             raise Exception(message)
