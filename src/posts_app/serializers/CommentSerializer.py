@@ -1,4 +1,5 @@
 #serializer for Comment model
+from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
@@ -6,14 +7,14 @@ from posts_app.models import Post, CommentFeed, Comment
 
 from users_app.models import Sub
 
-base_fields = ['uuid',  'liked', 'reported', 'owner_uuid', 'has_parent',
+base_fields = ['uuid',  'liked', 'reported', 'user_id', 'has_parent',
         'is_original', 'parent_comment', 'text', 'likes', 'reports',
         'date', 'pic', 'owner', 'id']
 
 base_extra_kwargs = {
     'has_parent': {'read_only': True},
     'is_original': {'read_only': True},
-    'id': {'read_only': True}
+    'id': {'read_only': True},
 }
         
 
@@ -30,7 +31,7 @@ class BaseCommentSerializer(serializers.ModelSerializer):
     owner = serializers.DictField(source="get_owner_info", read_only=True)
     
     #write only fields
-    owner_uuid = serializers.CharField(write_only=True, allow_null=True, default=None)
+    user_id = serializers.IntegerField(write_only=True)
     
     def get_liked(self, obj):
         
@@ -69,49 +70,47 @@ class OriginalCommentSerializer(BaseCommentSerializer):
         extra_kargs = base_extra_kwargs
     
     def create(self, validated_data):
-        
         puuid = validated_data.pop('post_uuid')
-        owuuid = validated_data.pop('owner_uuid')
+        usr_id = validated_data.pop('user_id')
         
-        if puuid == None or owuuid == None:
-            raise Exception("please provide both uuid's for owner and post")
-        else:
-        
+        try:
+            user = User.objects.get(id=usr_id)
+            sub = Sub.objects.get(user=user)
             post = Post.objects.get(uuid=puuid)
+        except User.DoesNotExist as e:
+            raise Exception(e)
+        except Sub.DoesNotExist as e:
+            raise Exception(e)
+        except Post.DoesNotExist as e:
+            raise Exception(e)
+        else:
             commentfeed = CommentFeed.objects.create(post=post)
             
-            session_sub = Sub.objects.get(uuid=owuuid)
-            
             validated_data['commentfeed'] = commentfeed
-            validated_data['owner'] = session_sub
+            validated_data['owner'] = sub
             validated_data['is_original'] = True
             
             return Comment.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         #permissions should handle who can make updates
-        
+        usr_id = validated_data.pop('user_id')
         puuid = validated_data.pop('post_uuid')
-        owuuid = validated_data.pop('owner_uuid')
         
-        if puuid != None or owuuid != None:
-            raise Exception("owner_uuid and post_uuid must be None when updating")
+        if usr_id != instance.owner.user.id or puuid != None:
+            raise Exception("user_id cannot change and post_uuid must be None")
         else:
-            if instance.text != validated_data['text']:
-                instance.text = validated_data['text']
+            new_text = validated_data.get('text')
+            new_likes = validated_data.get('likes')
+            new_reports = validated_data.get('reports')
             
-            try:
-                new_likes = validated_data['likes']
-            except KeyError:
-                pass
-            else:
+            if new_text != instance.text:
+                instance.text = new_text
+            
+            if new_likes != instance.likes and new_likes != None:
                 instance.likes = new_likes
             
-            try:
-                new_reports = validated_data['reports']
-            except KeyError:
-                pass
-            else:
+            if new_reports != instance.reports and new_reports != None:
                 instance.reports = new_reports
             
             instance.save()
@@ -137,15 +136,13 @@ class ChildCommentSerializer(BaseCommentSerializer):
         extra_kargs = base_extra_kwargs
     
     def create(self, validated_data):
-        owuuid = validated_data.pop('owner_uuid')
+        usr_id = validated_data.pop('user_id')
         cfuuid = validated_data.pop('commentfeed_uuid')
         pauuid = validated_data.pop('parent_uuid')
         
-        if owuuid == None or cfuuid == None:
-            raise Exception("uuid for owner and commentfeed have to be provided")
-        else:
-        
-            session_sub = Sub.objects.get(uuid=owuuid)
+        try:
+            user = User.objects.get(id=usr_id)
+            sub = Sub.objects.get(user=user)
             commentfeed = CommentFeed.objects.get(uuid=cfuuid)
             
             if pauuid != None:
@@ -155,8 +152,18 @@ class ChildCommentSerializer(BaseCommentSerializer):
             else:
                 validated_data['has_parent'] = False
                 validated_data['parent_comment'] = None
+        
+        except Sub.DoesNotExist as e:
+            raise Exception(e)
+        except User.DoesNotExist as e:
+            raise Exception(e)
+        except Comment.DoesNotExist as e:
+            raise Exception(e)
+        except CommentFeed.DoesNotExist as e:
+            raise Exception(e)
+        else:
             
-            validated_data['owner'] = session_sub
+            validated_data['owner'] = sub
             validated_data['commentfeed'] = commentfeed
             validated_data['is_original'] = False
             
@@ -164,30 +171,25 @@ class ChildCommentSerializer(BaseCommentSerializer):
     
     def update(self, instance, validated_data):
         
-        owuuid = validated_data.pop('owner_uuid')
+        user_id = validated_data.pop('user_id')
         cfuuid = validated_data.pop('commentfeed_uuid')
         pauuid = validated_data.pop('parent_uuid')
         
-        if owuuid != None or cfuuid != None or pauuid != None:
-            print("when updating all owner uuid commentfeed uuid and/n")
-            print("parent uuid fields must be None")
-            raise ValueError
+        if user_id != instance.owner.user.id or cfuuid != None or pauuid != None:
+            m = "user_id cannot change, commentfeed_uuid and parent_uuid must be None"
+            raise Exception(m)
         else:
-            if instance.text != validated_data['text']:
-                instance.text = validated_data['text']
+            new_text = validated_data.get('text')
+            new_likes = validated_data.get('likes')
+            new_reports = validated_data.get('reports')
             
-            try:
-                new_likes = validated_data['likes']
-            except KeyError:
-                pass
-            else:
+            if new_text != instance.text:
+                instance.text = new_text
+            
+            if new_likes != instance.likes and new_likes != None:
                 instance.likes = new_likes
             
-            try:
-                new_reports = validated_data['reports']
-            except KeyError:
-                pass
-            else:
+            if new_reports != instance.reports and new_reports != None:
                 instance.reports = new_reports
             
             instance.save()
