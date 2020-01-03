@@ -32,22 +32,15 @@ class Post(models.Model):
         if self.owner:
             return {
                 'username': self.owner.user.username,
+                'profile_pic': self.owner.get_profile_pic_url,
                 'uuid': self.owner.get_uuid_as_string
             }
         else:
             return {
                 'username': "[deleted]",
+                'profile_pic': None,
                 'uuid': None
             }
-    
-    @property
-    def get_pic(self):
-        #get profile picture url from sub.profile_picture
-
-        if self.owner:
-            return self.owner.get_profile_pic_url
-        else:
-            return None
     
     @property
     def get_date_posted(self):
