@@ -9,7 +9,7 @@ from users_app.models import Sub
 
 base_fields = ['uuid',  'liked', 'reported', 'user_id', 'has_parent',
         'is_original', 'parent_comment', 'text', 'likes', 'reports',
-        'date', 'pic', 'owner', 'id']
+        'date', 'owner', 'id']
 
 base_extra_kwargs = {
     'has_parent': {'read_only': True},
@@ -27,7 +27,6 @@ class BaseCommentSerializer(serializers.ModelSerializer):
     reported = serializers.SerializerMethodField()
     date = serializers.CharField(source="get_date_posted", read_only=True)
     parent_comment = serializers.DictField(source="get_parent_comment", read_only=True)
-    pic = serializers.CharField(source="get_pic", read_only=True)
     owner = serializers.DictField(source="get_owner_info", read_only=True)
     
     #write only fields
@@ -147,11 +146,6 @@ class ChildCommentSerializer(BaseCommentSerializer):
             
             if pauuid != None:
                 parent_comment = Comment.objects.get(uuid=pauuid)
-                validated_data['parent_comment'] = parent_comment
-                validated_data['has_parent'] = True
-            else:
-                validated_data['has_parent'] = False
-                validated_data['parent_comment'] = None
         
         except Sub.DoesNotExist as e:
             raise Exception(e)
@@ -166,6 +160,13 @@ class ChildCommentSerializer(BaseCommentSerializer):
             validated_data['owner'] = sub
             validated_data['commentfeed'] = commentfeed
             validated_data['is_original'] = False
+            
+            if pauuid != None:
+                validated_data['parent_comment'] = parent_comment
+                validated_data['has_parent'] = True
+            else:
+                validated_data['parent_comment'] = None
+                validated_data['has_parent'] = False
             
             return Comment.objects.create(**validated_data)
     

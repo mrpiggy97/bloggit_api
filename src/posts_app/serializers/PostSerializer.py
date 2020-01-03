@@ -15,7 +15,6 @@ class PostSerializer(serializers.ModelSerializer):
     communities_list = serializers.ListField(source="get_communities_as_list",
                                                 read_only=True)
     owner = serializers.DictField(source="get_owner_info", read_only=True)
-    pic = serializers.CharField(source="get_pic", read_only=True)
     date = serializers.CharField(source="get_date_posted", read_only=True)
     uuid = serializers.CharField(source="get_uuid_as_string", read_only=True)
     liked = serializers.SerializerMethodField()
@@ -32,9 +31,9 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['communities_list', 'owner', 'pic', 'date', 'uuid',
-                    'liked', 'reported', 'user_id', 'add_communities',
-                    'remove_communities', 'title', 'text', 'likes', 'reports']
+        fields = ['communities_list', 'owner', 'date', 'uuid', 'liked',
+                  'reported', 'user_id', 'add_communities', 'remove_communities',
+                  'title', 'text', 'likes', 'reports']
 
     def get_liked(self, obj):
         if self.context:
