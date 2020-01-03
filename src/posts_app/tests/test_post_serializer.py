@@ -60,7 +60,6 @@ class TestPostSerializer(APITestCase):
             'likes': new_post.likes,
             'reports': new_post.reports,
             'owner': new_post.get_owner_info,
-            'pic': new_post.get_pic,
             'date': new_post.get_date_posted
         }
 

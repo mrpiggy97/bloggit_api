@@ -30,7 +30,6 @@ class TestChildCommentSerializer(APITestCase):
             'reported': None,
             'date': self.child_comment.get_date_posted,
             'parent_comment': self.child_comment.get_parent_comment,
-            'pic': self.child_comment.get_pic,
             'owner': self.child_comment.get_owner_info,
             'is_original': False,
             'has_parent': False,

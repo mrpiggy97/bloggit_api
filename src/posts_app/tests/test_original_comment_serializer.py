@@ -25,7 +25,6 @@ class TestOriginalCommentSerializer(APITestCase):
             'reported': None,
             'date': self.first_comment.get_date_posted,
             'parent_comment': self.first_comment.get_parent_comment,
-            'pic': self.first_comment.get_pic,
             'owner': self.first_comment.get_owner_info,
             'has_parent': False,
             'is_original': True,
