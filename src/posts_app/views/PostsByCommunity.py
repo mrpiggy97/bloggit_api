@@ -22,19 +22,6 @@ class PostsByCommunity(ListAPIView):
     paginator = CustomPagination()
     permission_classes = (ReadOnly,)
 
-    def check_if_subscribed(self):
-        slug = self.kwargs['community_slug']
-
-        if self.request.user.is_authenticated:
-            session_sub = Sub.objects.get(user=self.request.user)
-            if slug in session_sub.communities.as_list:
-                return True
-            else:
-                return False
-        
-        elif self.request.user.is_anonymous:
-            return None
-
     def get_queryset(self):
         #first get the community
         slug = self.kwargs['community_slug']
@@ -70,7 +57,6 @@ class PostsByCommunity(ListAPIView):
         posts = self.serializer(results, context=context, many=True).data
         
         data = self.paginator.get_paginated_data(posts, request)
-        data['subscribed'] = self.check_if_subscribed()
         status_code = status.HTTP_200_OK
 
         return Response(data=data, status=status_code)
