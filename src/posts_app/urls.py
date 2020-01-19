@@ -21,7 +21,10 @@ urlpatterns = [
     path('delete-post/<str:post_uuid>/', PostView.as_view(), name='delete_post'),
     #posts-by-community url
     path('posts-by-community/<slug:community_slug>/', PostsByCommunity.as_view(),
-                                                        name='posts_by_community'),
+                                                  name='posts_by_community'),
+    #same as posts-by-community but also with extra kwargs
+    path('posts-by-community-include-info/<slug:community_slug>/', PostsByCommunity.as_view(),
+         {'get_community_info': True}, name='posts_by_community_include_info'),
     #most popular posts in community url
     path('most-popular/<slug:community_slug>/', PopularInCommunity.as_view(),
          name='most_popular'),

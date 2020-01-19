@@ -23,6 +23,7 @@ class TestPostsByCommunity(APITestCase):
 
         self.user = create_user()
         self.sub = create_sub(self.user)
+        self.slug = 'test'
 
         for n in range (0, 4):
             create_post(self.sub)
@@ -30,9 +31,8 @@ class TestPostsByCommunity(APITestCase):
         for post in Post.objects.all():
             post.communities.add('test')
         
-        self.path = '/api/v1/posts/posts-by-community/%s/' %('test')
+        self.path = '/api/v1/posts/posts-by-community/%s/' %(self.slug)
         self.client = APIClient()
-        self.slug = 'test'
         self.serializer = PostSerializer
         self.paginator = PageNumberPagination()
 
@@ -40,5 +40,8 @@ class TestPostsByCommunity(APITestCase):
         #this request should be successful and return a 200 ok http response
         #along with a list of posts related to a community(tag)
         response = self.client.get(path=self.path)
+        path2 = '/api/v1/posts/posts-by-community-include-info/%s/' %(self.slug)
+        response2 = self.client.get(path=path2)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response2.status_code,  status.HTTP_200_OK)

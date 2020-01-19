@@ -22,6 +22,7 @@ class PostsByCommunity(ListAPIView):
     paginator = CustomPagination()
     permission_classes = (ReadOnly,)
     people_in_community = None
+    posts_in_community = None
 
     def get_queryset(self):
         #first get the community
@@ -37,8 +38,12 @@ class PostsByCommunity(ListAPIView):
         else:
             #if community does exists send a queryset of posts that
             #have community in obj.communities
-            self.people_in_community = Sub.objects.filter(communities=community).count()
-            return Post.objects.filter(communities=community).order_by('-id')[0:250]
+            posts = Post.objects.filter(communities=community).order_by('-id')[0:250]
+            if self.kwargs.get('get_community_info') == True:
+                self.posts_in_community = posts.count()
+                subs = Sub.objects.filter(communities=community)
+                self.people_in_community = subs.count()
+            return posts
     
     def get_serializer_context(self):
 
@@ -59,8 +64,9 @@ class PostsByCommunity(ListAPIView):
         posts = self.serializer(results, context=context, many=True).data
         
         data = self.paginator.get_paginated_data(posts, request)
-        if self.people_in_community != None:
+        if kwargs.get('get_community_info') == True:
             data['people_in_community'] = self.people_in_community
+            data['posts_in_community'] = self.posts_in_community
         status_code = status.HTTP_200_OK
 
         return Response(data=data, status=status_code)
