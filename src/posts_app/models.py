@@ -132,15 +132,19 @@ class Comment(models.Model):
         if self.has_parent == True:
             if self.parent_comment:
                 return {
-                    'title': self.parent_comment.title,
                     'text': self.parent_comment.text,
-                    'username': self.parent_comment.get_username,
+                    'owner': self.parent_comment.get_owner_info,
                     'date': self.parent_comment.get_date_posted,
                     'uuid': self.parent_comment.get_uuid_as_string
                 }
             
             else:
-                return None
+                return {
+                    'text' : '[deleted]',
+                    'owner' : '[deleted]',
+                    'date' : '[deleted]',
+                    'uuid' : '[deleted]'
+                }
         else:
             return None
     
