@@ -21,6 +21,20 @@ class TestChildCommentSerializer(APITestCase):
                                                     commentfeed=self.commentfeed,
                                                     is_original=False)
         
+        self.child_comment2 = Comment.objects.create(text="this is the second child comment",
+                                                     owner=self.sub,
+                                                     commentfeed=self.commentfeed,
+                                                     is_original=False,
+                                                     has_parent=True,
+                                                     parent_comment=self.child_comment)
+        
+        Comment.objects.create( text="this is the text",
+                                commentfeed=self.commentfeed,
+                                parent_comment=self.child_comment,
+                                owner=self.sub,
+                                is_original=False,
+                                has_parent=True)
+        
         self.serializer = ChildCommentSerializer
     
     def test_expected_data(self):
@@ -39,8 +53,48 @@ class TestChildCommentSerializer(APITestCase):
             'id': self.child_comment.id
         }
         
+        expected_data2 = {
+            'uuid': self.child_comment2.get_uuid_as_string,
+            'liked' : None,
+            'reported' : None,
+            'likes' : 1,
+            'reports' : 0,
+            'is_original' : False,
+            'has_parent' : True,
+            'parent_comment' : self.child_comment2.get_parent_comment,
+            'date' : self.child_comment2.get_date_posted,
+            'owner' : self.child_comment2.get_owner_info,
+            'id' : self.child_comment2.id,
+            'text' : self.child_comment2.text
+        }
+        
         serializer_data = self.serializer(self.child_comment, context=None).data
+        serializer_data2 = self.serializer(self.child_comment2, context=None).data
         self.assertEqual(expected_data, serializer_data)
+        self.assertEqual(expected_data2, serializer_data2)
+    
+    def test_expected_data_with_parent_comment(self):
+        expected_data = {
+            'owner' : self.child_comment.get_owner_info,
+            'text' : self.child_comment.text,
+            'uuid' : self.child_comment.get_uuid_as_string,
+            'date' : self.child_comment.get_date_posted
+        }
+        
+        serialized_comment = self.serializer(self.child_comment2).data
+        self.assertEqual(serialized_comment.get('parent_comment'), expected_data)
+    
+    def test_expected_data_with_parent_comment_deleted(self):
+        self.child_comment.delete()
+        comment = Comment.objects.get(text="this is the text")
+        serialized_comment = self.serializer(comment).data
+        expected_data = {
+            'owner' : '[deleted]',
+            'date' : '[deleted]',
+            'text' : '[deleted]',
+            'uuid': '[deleted]'
+        }
+        self.assertEqual(serialized_comment.get('parent_comment'), expected_data)
     
     def test_is_valid_and_create_without_parent(self):
         data = {
@@ -55,7 +109,7 @@ class TestChildCommentSerializer(APITestCase):
         if serializer.is_valid():
             serializer.save()
         
-        self.assertEqual(Comment.objects.count(), 3)
+        self.assertEqual(Comment.objects.count(), 5)
         
         last_comment = Comment.objects.last()
         
