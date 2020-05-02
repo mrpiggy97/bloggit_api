@@ -30,7 +30,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = eval(os.getenv('DEBUG').capitalize())
 
-HOST = os.getenv('HOST')
+HOST = os.getenv("HOST")
 
 ALLOWED_CROSS_ORIGIN_HOST = os.getenv('ALLOWED_CROSS_ORIGIN_HOST')
 
@@ -250,5 +250,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '/media/pics/')
 
 REST_USE_JWT = True
 
-ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = 'none'
