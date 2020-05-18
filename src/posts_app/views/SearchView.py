@@ -3,7 +3,6 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from posts_app.models import Post
 from posts_app.serializers.PostSerializer import PostSerializer
 
 from users_app.models import Sub
@@ -12,8 +11,6 @@ from bloggit_project.utils.authentication import CustomJSONWebTokenAuthenticatio
 from bloggit_project.utils.pagination import CustomPagination
 from bloggit_project.utils.search_for_posts import search_for_posts
 from bloggit_project.utils.permissions import ReadOnly
-
-from taggit.models import Tag
 
 class SearchView(ListAPIView):
     '''return a query based on data sent by request'''

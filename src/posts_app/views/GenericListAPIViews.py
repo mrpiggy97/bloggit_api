@@ -1,6 +1,11 @@
+'''essentially home page and post by community endpoints'''
+
+from datetime import date
+
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
+from taggit.models import Tag
 
 from posts_app.models import Post
 from posts_app.serializers.PostSerializer import PostSerializer
@@ -11,11 +16,6 @@ from bloggit_project.utils.authentication import CustomJSONWebTokenAuthenticatio
 from bloggit_project.utils.pagination import CustomPagination
 from bloggit_project.utils.permissions import ReadOnly
 
-from taggit.models import Tag
-
-from datetime import date
-import json
-
 class GenericListAPIView(ListAPIView):
     '''provide a base view that can be inherited'''
     
@@ -25,14 +25,15 @@ class GenericListAPIView(ListAPIView):
     permission_classes = (ReadOnly,)
     
     def get_serializer_context(self):
+        '''get context to be used by serializer'''
         if self.request.user.is_authenticated:
             session_sub = Sub.objects.get(user=self.request.user)
             return {'session_sub': session_sub}
-        else:
-            return None
+        return None
     
     def list(self, request, *args, **kwargs):
-        
+        '''override list method and return
+            a list of filtered Post objects'''
         queryset = self.get_queryset()
         context = self.get_serializer_context()
         
@@ -58,7 +59,7 @@ class PopularInCommunity(GenericListAPIView):
     today = date.today()
     
     def get_queryset(self):
-        slug = self.kwargs['community_slug']
+        slug = self.kwargs.get('community_slug')
         community = Tag.objects.get(slug=slug)
         
         return Post.objects.filter(communities=community,
