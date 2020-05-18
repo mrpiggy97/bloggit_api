@@ -1,4 +1,4 @@
-#like and and report post and comments
+'''like and and report post and comments'''
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -9,12 +9,11 @@ from posts_app.models import Post, Comment
 
 from users_app.models import Sub
 
-
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def like_post(request, post_uuid):
-    '''increase post likes and add'''
-    '''post uuid to sub.liked_posts'''
+    '''increase post likes and add
+        post uuid to sub.liked_posts'''
     
     post = Post.objects.get(uuid=post_uuid)
     session_sub = Sub.objects.get(user=request.user)
@@ -38,8 +37,8 @@ def like_post(request, post_uuid):
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def like_comment(request, comment_uuid):
-    '''increase comment likes and add'''
-    '''comment uuid to sub.liked_comments'''
+    '''increase comment likes and add
+        comment uuid to sub.liked_comments'''
     
     comment = Comment.objects.get(uuid=comment_uuid)
     session_sub = Sub.objects.get(user=request.user)
@@ -63,8 +62,8 @@ def like_comment(request, comment_uuid):
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def report_post(request, post_uuid):
-    '''increase post.likes and add its'''
-    '''uuid to sub.reported_posts'''
+    '''increase post.likes and add its
+        uuid to sub.reported_posts'''
     
     post = Post.objects.get(uuid=post_uuid)
     session_sub = Sub.objects.get(user=request.user)
@@ -86,8 +85,8 @@ def report_post(request, post_uuid):
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def report_comment(request, comment_uuid):
-    '''increase comment.reports number and add'''
-    '''its uuid to sub.reported_comments'''
+    '''increase comment.reports number and add
+        its uuid to sub.reported_comments'''
     
     comment = Comment.objects.get(uuid=comment_uuid)
     session_sub = Sub.objects.get(user=request.user)

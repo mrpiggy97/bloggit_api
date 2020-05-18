@@ -1,3 +1,5 @@
+'''retrieve data from sub'''
+
 from django.contrib.auth import password_validation
 from django.core import exceptions
 
@@ -8,10 +10,10 @@ from rest_framework.permissions import IsAuthenticated
 
 from users_app.models import Sub
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def profile_info(request):
+    '''return dict containing basic info about sub'''
     session_sub = Sub.objects.get(user=request.user)
     status_code = status.HTTP_200_OK
     data = {
@@ -37,7 +39,6 @@ def change_password(request):
         return Response(data=d, status=status_code)
     
     elif data.get('newPassword') == data.get('confirmationPassword'):
-        #to do, apply password validation before changing users password
         new_password = data.get('newPassword')
         try:
             password_validation.validate_password(new_password, user=request.user)

@@ -1,6 +1,6 @@
-#add and remove communities from Sub.communities
+'''add and remove communities from Sub.communities'''
 
-from django.contrib.auth.models import User
+from taggit.models import Tag
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,16 +9,13 @@ from rest_framework.permissions import IsAuthenticated
 
 from users_app.models import Sub
 
-from taggit.models import Tag
-
-
 class CommunitiesFollowed(APIView):
     '''endpoint to add and remove communities from Sub.communities'''
     permission_classes = (IsAuthenticated,)
 
     def get_object(self):
-
-        slug = self.kwargs['community_slug']
+        '''get community tag'''
+        slug = self.kwargs.get("community_slug")
         
         try:
             community = Tag.objects.get(slug=slug)
@@ -32,7 +29,6 @@ class CommunitiesFollowed(APIView):
 
     def put(self, request, *args, **kwargs):
         '''add community to sub.communities'''
-
         session_sub = Sub.objects.get(user=request.user)
         community = self.get_object()
         session_sub.communities.add(community)
@@ -40,7 +36,6 @@ class CommunitiesFollowed(APIView):
     
     def delete(self, request, *args, **kwargs):
         '''remove community from sub.communities'''
-
         session_sub = Sub.objects.get(user=request.user)
         community = self.get_object()
         session_sub.communities.remove(community)
