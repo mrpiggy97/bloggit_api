@@ -8,5 +8,6 @@ def payload_handler(token, user=None, request=None):
         'token': token,
         'username': user.username,
         'profile_pic': sub.get_profile_pic_url,
-        'communities': sub.get_communities_as_list
+        'communities': sub.get_communities_as_list,
+        'authenticated' : True
     }
