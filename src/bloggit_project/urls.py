@@ -22,12 +22,12 @@ from django.views.generic import TemplateView
 from rest_framework_swagger.views import get_swagger_view
 from rest_auth.views import PasswordResetConfirmView
 
-from bloggit_project.utils.views import CustomPasswordResetView, CustomRegisterView
+from bloggit_project.utils.views import CustomPasswordResetView, CustomRegisterView, CustomLoginView
 schema_view = get_swagger_view(title='bloggit API')
 
 urlpatterns = [
     path('api/v1/admin/', admin.site.urls),
-    path('api/v1/rest-auth/', include('rest_auth.urls')),
+    path('api/v1/login/', CustomLoginView.as_view(), name="login_v1"),
     path('api/v1/register/', CustomRegisterView.as_view(), name='register_v1'),
     path('api/v1/api-docs', schema_view),
     path('api/v1/posts/', include('posts_app.urls')),
