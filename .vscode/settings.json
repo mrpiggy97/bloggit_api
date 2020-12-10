@@ -4,4 +4,5 @@
     "python.linting.pylintEnabled": true,
     "python.linting.lintOnSave": true,
     "python.linting.pylintPath": "env/pylint",
+    "python.analysis.typeCheckingMode": "basic"
 }
