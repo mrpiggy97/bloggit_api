@@ -5,6 +5,8 @@ from rest_framework import status
 
 from posts_app.tests.utils import create_user, create_sub, create_post
 
+from uuid import uuid4
+
 
 class TestGetPost(APITestCase):
     '''test endpoint get-post/post_uuid/'''
@@ -16,6 +18,9 @@ class TestGetPost(APITestCase):
         self.post = create_post(self.sub)
 
         self.path = '/api/v1/posts/get-post/%s/' %(str(self.post.uuid))
+
+        self.fake_uuid = uuid4()
+        self.path2 = "/api/v1/posts/get-post/%s/" %(str(self.fake_uuid))
 
         self.client = APIClient()
     
@@ -31,3 +36,9 @@ class TestGetPost(APITestCase):
 
         response = self.client.post(path=self.path)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_unfound_post(self):
+        '''test the response we would get if'''
+        '''a fake uuid was introduced in the url'''
+        response = self.client.get(path=self.path2)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
