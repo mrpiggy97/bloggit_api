@@ -2,7 +2,9 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 
-from posts_app.models import Post
+from django.db.models.query import QuerySet
+
+from posts_app.models import Post, CommentFeed
 from posts_app.serializers.PostSerializer import PostSerializer
 from posts_app.serializers.CommentFeedSerializer import CommentFeedSerializer
 
@@ -11,6 +13,7 @@ from users_app.models import Sub
 from bloggit_project.utils.authentication import CustomJSONWebTokenAuthentication
 from bloggit_project.utils.permissions import AuthenticatedReadAndOwnerOnly
 
+from typing import Union
 
 class PostView(APIView):
     '''generic class'''
@@ -20,14 +23,14 @@ class PostView(APIView):
     post_serializer = PostSerializer
     commentfeed_serializer = CommentFeedSerializer
 
-    def get_object(self):
+    def get_object(self) -> Union[Post, None]:
         '''get post object'''
 
         try:
             uuid = self.kwargs['post_uuid']
             post = Post.objects.get(uuid=uuid)
         except Post.DoesNotExist:
-            return Response(data="shit", status=status.HTTP_404_NOT_FOUND) 
+            return None
         else:
             self.check_object_permissions(self.request, post)
             return post
@@ -48,22 +51,29 @@ class PostView(APIView):
     def get(self, request, *args, **kwargs):
         '''return post object along with all commentfeeds related to it'''
 
-        post = self.get_object()
-        commentfeeds = post.get_commentfeeds
-        context = self.get_serializer_context()
-        post_data = self.post_serializer(post, context=context).data
-        commentfeed_data = self.commentfeed_serializer(commentfeeds,
-                                                        context=context,
-                                                        many=True).data
-        data = {
-            'posts': post_data,
-            'commentfeeds': commentfeed_data,
-            'authenticated': request.user.is_authenticated
-        }
-        
-        status_code = status.HTTP_200_OK
+        post : Union[Post, None] = self.get_object()
+        if post:
+            commentfeeds : QuerySet["CommentFeed"] = post.get_commentfeeds
+            context = self.get_serializer_context()
+            post_data = self.post_serializer(post, context=context).data
+            commentfeed_data = self.commentfeed_serializer(commentfeeds,
+                                                            context=context,
+                                                            many=True).data
+            data = {
+                'posts': post_data,
+                'commentfeeds': commentfeed_data,
+                'authenticated': request.user.is_authenticated
+            }
+            
+            status_code = status.HTTP_200_OK
 
-        return Response(data=data, status=status_code)
+            return Response(data=data, status=status_code)
+        else:
+            data = {
+                "detail" : "no such posts exists"
+            }
+
+            return Response(data=data, status=status.HTTP_404_NOT_FOUND)
     
     def put(self, request, *args, **kwargs):
         '''update instance of post'''
@@ -104,6 +114,6 @@ class PostView(APIView):
     
     def delete(self, request, *args, **kwargs):
         '''delete a specific post'''
-        post = self.get_object()
+        post : Union[Post, None] = self.get_object()
         post.delete()
         return Response(data=None, status=status.HTTP_200_OK)
