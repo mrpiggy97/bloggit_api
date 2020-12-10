@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 import datetime
+from typing import Union
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -28,7 +29,17 @@ load_dotenv(os.path.join(file_loader, '.env'))
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = eval(os.getenv('DEBUG').capitalize())
+
+MODE : Union[str, None] = os.getenv("Mode")
+
+def get_debug_mode() -> bool:
+    if MODE == "dev":
+        return True
+    elif MODE == "prod":
+        return False
+    return True
+
+DEBUG : bool = get_debug_mode()
 
 HOST = os.getenv("HOST")
 
@@ -247,8 +258,6 @@ SITE_ID = 1
 MEDIA_URL = '/media/pics/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, '/media/pics/')
-
-REST_USE_JWT = True
 
 ACCOUNT_EMAIL_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = 'none'
