@@ -3,6 +3,7 @@ import uuid
 
 from django.db import models
 from django.utils.dateformat import DateFormat
+from django.db.models.query import QuerySet
 
 from users_app.models import Sub
 
@@ -44,17 +45,17 @@ class Post(models.Model):
             }
 
     @property
-    def get_date_posted(self):
+    def get_date_posted(self) -> str:
         '''return a formatted string representing date'''
         return DateFormat(self.date_posted).format("M d, Y")
     
     @property
-    def get_uuid_as_string(self):
+    def get_uuid_as_string(self) -> str:
         '''return uuid as string'''
         return str(self.uuid)
     
     @property
-    def get_commentfeeds(self):
+    def get_commentfeeds(self) -> "QuerySet['CommentFeed']":
         '''return a queryset of all CommentFeed objects related
             related to post instance'''
         return CommentFeed.objects.filter(post=self).order_by('-id')
